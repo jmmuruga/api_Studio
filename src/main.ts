@@ -4,6 +4,7 @@ import express from 'express';
 import "./core/db";
 import cors from "cors";
 import authRouter from "./module/auth/auth.controller";
+import userDetailRouter from "./module/userDetails/userDetails.controller";
 const app = express();
 dotenv.config();
 const PORT =process.env.PORT || 5000;
@@ -16,4 +17,5 @@ let corsOptions = {
   optionsSuccessStatus: 204,
 };
 app.use('/auth' , cors(corsOptions), authRouter);
+app.use('/userDetailsRouter',cors(corsOptions), userDetailRouter);
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));
