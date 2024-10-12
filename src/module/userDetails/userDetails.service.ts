@@ -1,5 +1,5 @@
 import { appSource } from "../../core/db";
-import { ValidationException } from "../../core/exception";
+import { HttpException, ValidationException } from "../../core/exception";
 import { userDetailsDto, userDetailsValidation } from "./userDetails.dto";
 import { UserDetails } from "./userDetails.model";
 import { Request, Response } from "express";
@@ -39,14 +39,14 @@ export const newUser = async (req: Request, res: Response) => {
             .where("UserDetails.userid = :userid", {
                 userid: payload.userid,
             })
-            .getOne();       
+            .getOne();
         if (userDetailsDetails?.userid && payload.userid > 0) {
             if (userDetailsDetails.e_mail !== payload.e_mail) {
                 const validateTypeName = await UserDetailsRepoistry.findBy({
                     e_mail: payload.e_mail
                 })
                 if (validateTypeName?.length) {
-                    throw new ValidationException("User Name already exist");
+                    throw new ValidationException("E-mail already exist");
                 }
             }
             const { userid, ...updatePayload } = payload;
@@ -71,7 +71,7 @@ export const newUser = async (req: Request, res: Response) => {
                 e_mail: payload.e_mail
             })
             if (validateTypeName?.length) {
-                throw new ValidationException("User Name already exist");
+                throw new ValidationException("E-mail already exist");
             }
             const { userid, ...updatePayload } = payload;
             await UserDetailsRepoistry.save(updatePayload);
@@ -81,12 +81,44 @@ export const newUser = async (req: Request, res: Response) => {
         }
     }
     catch (error) {
-        console.log(error, 'error')
         if (error instanceof ValidationException) {
             return res.status(400).send({
                 message: error.message, // Ensure the error message is sent properly
             });
         }
         res.status(500).send({ message: 'Internal server error' });
+    }
+}
+
+export const deleteUser = async (req: Request, res: Response) => {
+    const id = req.params.userid;
+    const userRepo = appSource.getRepository(UserDetails);
+    try {
+        const typeNameFromDb = await userRepo
+            .createQueryBuilder('UserDetails')
+            .where("UserDetails.userid = :userid", {
+                userid: id,
+            })
+            .getOne();
+        if (!typeNameFromDb?.userid) {
+            throw new HttpException("User not Found", 400);
+        }
+        await userRepo
+            .createQueryBuilder("UserDetails")
+            .delete()
+            .from(UserDetails)
+            .where("userid = :userid", { userid: id })
+            .execute();
+        res.status(200).send({
+            IsSuccess: `User deleted successfully!`,
+        });
+    }
+    catch (error) {
+        if (error instanceof ValidationException) {
+            return res.status(400).send({
+                message: error?.message,
+            });
+        }
+        res.status(500).send(error);
     }
 }
