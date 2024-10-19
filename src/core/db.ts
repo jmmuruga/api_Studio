@@ -3,9 +3,12 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { LoginDetails } from "../module/auth/auth.model";
 import { UserDetails } from "../module/userDetails/userDetails.model";
-const Entities : any[] = [
-    LoginDetails,
-    UserDetails
+import { galleryMaster, galleryMasterNested } from "../module/gallery/gallery.model";
+const Entities: any[] = [
+  LoginDetails,
+  UserDetails,
+  galleryMaster,
+  galleryMasterNested
 ]
 export const appSource = new DataSource({
   type: "mssql",
@@ -36,5 +39,5 @@ export const appSource = new DataSource({
   },
 });
 appSource.initialize()
-.then((res) => console.log('SQL server connected successfully'))
-.catch((error) => console.log('Error while connecting to DataBase', error))
+  .then((res) => console.log('SQL server connected successfully'))
+  .catch((error) => console.log('Error while connecting to DataBase', error))
