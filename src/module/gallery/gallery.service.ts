@@ -210,3 +210,135 @@ export const deleteGalary = async (req: Request, res: Response) => {
         res.status(500).send(error);
     }
 }
+
+export const deletePermanantlyGallery = async (req: Request, res: Response) => {
+    const id = req.params.albumid;
+    const repoDetails = appSource.getRepository(galleryMaster);
+    try {
+        const typeNameFromDb = await repoDetails
+            .createQueryBuilder('galleryMaster')
+            .where("galleryMaster.albumid = :albumid", {
+                albumid: id,
+            })
+            .getOne();
+        if (!typeNameFromDb?.albumid) {
+            throw new HttpException("Gallery not Found", 400);
+        }
+        await repoDetails
+            .createQueryBuilder("galleryMaster")
+            .delete()
+            .from(galleryMaster)
+            .where("albumid = :albumid", { albumid: id })
+            .execute();
+        res.status(200).send({
+            IsSuccess: `Gallery deleted successfully!`,
+        });
+    }
+    catch (error) {
+        if (error instanceof ValidationException) {
+            return res.status(400).send({
+                message: error?.message,
+            });
+        }
+        res.status(500).send(error);
+    }
+}
+
+export const restoreDeleteGalary = async (req: Request, res: Response) => {
+    const id = req.params.albumid;
+    const delRepo = appSource.getRepository(galleryMaster);
+    try {
+        const typeNameFromDb = await delRepo
+            .createQueryBuilder('galleryMaster')
+            .where("galleryMaster.albumid = :albumid", {
+                albumid: id,
+            })
+            .getOne();
+        if (!typeNameFromDb?.albumid) {
+            throw new HttpException("Data not Found", 400);
+        }
+        await delRepo
+            .createQueryBuilder()
+            .update(galleryMaster)
+            .set({ isactive: true })
+            .where({ albumid: id }).execute();
+
+        res.status(200).send({
+            IsSuccess: `Gallery Restored successfully!`,
+        });
+    }
+    catch (error) {
+        if (error instanceof ValidationException) {
+            return res.status(400).send({
+                message: error?.message,
+            });
+        }
+        res.status(500).send(error);
+    }
+}
+
+export const deletePermanantlyGalleryNested = async (req: Request, res: Response) => {
+    const id = req.params.photoid;
+    const repoDetails = appSource.getRepository(galleryMasterNested);
+    try {
+        const typeNameFromDb = await repoDetails
+            .createQueryBuilder('galleryMasterNested')
+            .where("galleryMasterNested.photoid = :photoid", {
+                photoid: id,
+            })
+            .getOne();
+        if (!typeNameFromDb?.photoid) {
+            throw new HttpException("Photo not Found", 400);
+        }
+        await repoDetails
+            .createQueryBuilder("galleryMasterNested")
+            .delete()
+            .from(galleryMasterNested)
+            .where("photoid = :photoid", { photoid: id })
+            .execute();
+        res.status(200).send({
+            IsSuccess: `Photo Deleted successfully!`,
+        });
+    }
+    catch (error) {
+        if (error instanceof ValidationException) {
+            return res.status(400).send({
+                message: error?.message,
+            });
+        }
+        res.status(500).send(error);
+    }
+}
+
+export const restoreDeleteGalaryNested = async (req: Request, res: Response) => {
+    const id = req.params.photoid;
+    const delRepo = appSource.getRepository(galleryMasterNested);
+    try {
+        const typeNameFromDb = await delRepo
+            .createQueryBuilder('galleryMasterNested')
+            .where("galleryMasterNested.photoid = :photoid", {
+                photoid: id,
+            })
+            .getOne();
+        if (!typeNameFromDb?.photoid) {
+            throw new HttpException("Data not Found", 400);
+        }
+        await delRepo
+            .createQueryBuilder()
+            .update(galleryMasterNested)
+            .set({ isactive: true })
+            .where({ photoid: id }).execute();
+
+        res.status(200).send({
+            IsSuccess: `Photo Restored successfully!`,
+        });
+    }
+    catch (error) {
+        if (error instanceof ValidationException) {
+            return res.status(400).send({
+                message: error?.message,
+            });
+        }
+        res.status(500).send(error);
+    }
+}
