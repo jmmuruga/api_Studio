@@ -6,6 +6,7 @@ import cors from "cors";
 import authRouter from "./module/auth/auth.controller";
 import userDetailRouter from "./module/userDetails/userDetails.controller";
 import galleryRouter from "./module/gallery/gallery.controller";
+import bannerRouter from "./module/banner/banner.controller";
 const app = express();
 dotenv.config();
 const PORT = process.env.PORT || 5000;
@@ -20,4 +21,5 @@ let corsOptions = {
 app.use('/auth', cors(corsOptions), authRouter);
 app.use('/userDetailsRouter', cors(corsOptions), userDetailRouter);
 app.use('/galleryMasterRouter', cors(corsOptions), galleryRouter);
+app.use('/bannerMasterRouter', cors(corsOptions), bannerRouter);
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));

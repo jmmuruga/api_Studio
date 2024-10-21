@@ -58,7 +58,6 @@ export const getGalleryMasterNestedList = async (req: Request, res: Response) =>
 };
 
 export const getDeletedGalleryMaster = async (req: Request, res: Response) => {
-    console.log('call')
     try {
         const Repository = appSource.getRepository(galleryMaster);
         const dataList = await Repository
@@ -71,7 +70,6 @@ export const getDeletedGalleryMaster = async (req: Request, res: Response) => {
             Result: dataList
         });
     } catch (error) {
-        console.log(error)
         if (error instanceof ValidationException) {
             return res.status(400).send({
                 message: error?.message,
@@ -82,7 +80,6 @@ export const getDeletedGalleryMaster = async (req: Request, res: Response) => {
 };
 
 export const getDeletedGalleryMasterNested = async (req: Request, res: Response) => {
-    console.log('call')
     try {
         const Repository = appSource.getRepository(galleryMasterNested);
         const dataList = await Repository
@@ -214,6 +211,7 @@ export const deleteGalary = async (req: Request, res: Response) => {
 export const deletePermanantlyGallery = async (req: Request, res: Response) => {
     const id = req.params.albumid;
     const repoDetails = appSource.getRepository(galleryMaster);
+    const repoDetailsNested = appSource.getRepository(galleryMasterNested);
     try {
         const typeNameFromDb = await repoDetails
             .createQueryBuilder('galleryMaster')
@@ -228,6 +226,13 @@ export const deletePermanantlyGallery = async (req: Request, res: Response) => {
             .createQueryBuilder("galleryMaster")
             .delete()
             .from(galleryMaster)
+            .where("albumid = :albumid", { albumid: id })
+            .execute();
+
+        await repoDetailsNested
+            .createQueryBuilder("galleryMasterNested")
+            .delete()
+            .from(galleryMasterNested)
             .where("albumid = :albumid", { albumid: id })
             .execute();
         res.status(200).send({

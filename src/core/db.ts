@@ -4,11 +4,14 @@ import { DataSource } from "typeorm";
 import { LoginDetails } from "../module/auth/auth.model";
 import { UserDetails } from "../module/userDetails/userDetails.model";
 import { galleryMaster, galleryMasterNested } from "../module/gallery/gallery.model";
+import { bannerMaster, bannerMasterNested } from "../module/banner/banner.model";
 const Entities: any[] = [
   LoginDetails,
   UserDetails,
   galleryMaster,
-  galleryMasterNested
+  galleryMasterNested,
+  bannerMaster,
+  bannerMasterNested
 ]
 export const appSource = new DataSource({
   type: "mssql",
