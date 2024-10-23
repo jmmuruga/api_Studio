@@ -6,7 +6,6 @@ import { Request, Response } from "express";
 
 
 export const getGalleryList = async (req: Request, res: Response) => {
-
     try {
         const galleryMasterRepository = appSource.getRepository(galleryMaster);
         const details: galleryDetailsDto[] = await galleryMasterRepository.query(`
@@ -102,7 +101,6 @@ export const getDeletedGalleryMasterNested = async (req: Request, res: Response)
     }
 };
 
-
 export const newGallery = async (req: Request, res: Response) => {
     const payload: galleryDetailsDto = req.body;
     try {
@@ -118,14 +116,6 @@ export const newGallery = async (req: Request, res: Response) => {
         if (payload.albumid > 0) {
             const galleryDetailsList = await galleryMasterRepoistry.findOneBy({ albumid: payload.albumid });
             if (galleryDetailsList) {
-                // // Check for duplicate album name
-                // if (galleryDetailsList.album_name !== payload.album_name) {
-                //     const validateTypeName = await galleryMasterRepoistry.findBy({ album_name: payload.album_name });
-                //     if (validateTypeName?.length) {
-                //         throw new ValidationException("Album Name already exists");
-                //     }
-                // }
-
                 const { albumid, photos, ...updatePayload } = payload;
                 await galleryMasterRepoistry.update({ albumid: payload.albumid }, updatePayload);
 
