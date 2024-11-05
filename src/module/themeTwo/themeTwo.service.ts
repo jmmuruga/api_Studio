@@ -3,29 +3,36 @@ import { galleryMaster, galleryMasterNested } from "../gallery/gallery.model";
 import { appSource } from "../../core/db";
 import { galleryDetailsDto } from "../gallery/gallery.dto";
 import { ValidationException } from "../../core/exception";
+import { bannerMaster } from "../banner/banner.model";
+import { bannerDetailsDto } from "../banner/banner.dto";
 
 export const getPhotographyTypeServices = async (
   req: Request,
   res: Response
 ) => {
-  // console.log("called");
   try {
     const galleryMasterRepository = appSource.getRepository(galleryMaster);
-    const details: galleryDetailsDto[] = await galleryMasterRepository.query(`
-        WITH getFirstImg AS (
-    SELECT CAST(baseimg AS VARCHAR(MAX)) AS baseimg,albumid,
-        ROW_NUMBER() OVER (PARTITION BY albumid ORDER BY photoid) AS row_num
-    FROM [${process.env.DB_NAME}].[dbo].[gallery_master_nested]
-    WHERE isactive = 1
-)
+    const details = await galleryMasterRepository.query(`
+      SELECT gm.album_name
+      FROM [${process.env.DB_NAME}].[dbo].[gallery_master] gm
+      WHERE gm.isactive = 1
+      GROUP BY gm.album_name`);
 
-SELECT gm.album_name, ISNULL(gmn.baseimg, '') AS baseimg
-FROM  [${process.env.DB_NAME}].[dbo].[gallery_master] gm
-LEFT JOIN getFirstImg gmn ON gmn.albumid = gm.albumid AND gmn.row_num = 1
-WHERE gm.isactive = 1
-GROUP BY gm.album_name,gmn.baseimg;
+    for (const album of details) {
+      const nestedData = await galleryMasterRepository.query(
+        `
+          SELECT TOP 1 gm.album_name, CAST(gmn.baseimg AS VARCHAR(MAX)) AS baseimg
+          FROM [${process.env.DB_NAME}].[dbo].[gallery_master] gm
+          INNER JOIN [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn 
+            ON gmn.albumid = gm.albumid AND gmn.isactive = 1
+          WHERE gm.isactive = 1 AND gm.album_name = '${album.album_name}'
+          ORDER BY gmn.photoid
+        `
+      );
 
-        `);
+      // Attach the base image to the album
+      album.baseimg = nestedData[0]?.baseimg || ""; // Get baseimg from the first row if available
+    }
 
     res.status(200).send({
       Result: details,
@@ -43,16 +50,26 @@ GROUP BY gm.album_name,gmn.baseimg;
 
 export const getAlbumName = async (req: Request, res: Response) => {
   const albumName = req.params.album_name;
-  // console.log("calledServices", albumName);
   try {
     const galleryMasterRepository = appSource.getRepository(galleryMaster);
-    const details = await galleryMasterRepository
-      .createQueryBuilder("galleryMaster")
-      .where("galleryMaster.album_name = :album_name", {
-        album_name: albumName,
-      })
-      .andWhere("galleryMaster.isactive = :isactive", { isactive: true })
-      .getMany();
+    const details = await galleryMasterRepository.query(`
+     SELECT *
+FROM  [${process.env.DB_NAME}].[dbo].[gallery_master] gm
+WHERE gm.isactive = 1 and gm.album_name = '${albumName}'`);
+
+    for (const album of details) {
+      const nestedData = await galleryMasterRepository.query(
+        `SELECT top 1 gm.album_name, CAST(gmn.baseimg AS VARCHAR(MAX)) AS baseimg
+FROM [${process.env.DB_NAME}].[dbo].[gallery_master] gm
+inner JOIN [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn ON gmn.albumid = gm.albumid and gmn.isactive=1
+WHERE gm.isactive = 1 and gm.title='${album.title}'
+ ORDER BY gmn.photoid`
+      );
+
+      // Attach the base image to the album
+      album.baseimg = nestedData[0]?.baseimg || ""; // Get baseimg from the first row if available
+    }
+
     res.status(200).send({
       Result: details,
     });
@@ -69,12 +86,11 @@ export const getAlbumName = async (req: Request, res: Response) => {
 
 export const getAlbumImages = async (req: Request, res: Response) => {
   const albumId = req.params.albumid;
-  // console.log("calledAlbumId", albumId);
   try {
     const galleryMasterRepository = appSource.getRepository(galleryMaster);
     const details: galleryDetailsDto[] = await galleryMasterRepository.query(`
         select gmn.baseimg from [${process.env.DB_NAME}].[dbo].[gallery_master] gm
-inner join [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid
+inner join [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid and gmn.isactive = 1
 where gm.isactive = 1 and gm.albumid = ${albumId}
         `);
 
@@ -95,12 +111,36 @@ where gm.isactive = 1 and gm.albumid = ${albumId}
 export const getAllImages = async (req: Request, res: Response) => {
   try {
     const repo = appSource.getRepository(galleryMasterNested);
-    const details = await repo 
+    const details = await repo
       .createQueryBuilder("galleryMasterNested")
       .where("galleryMasterNested.isactive = :isactive", {
         isactive: true,
       })
       .getMany();
+    res.status(200).send({
+      Result: details,
+    });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const getBanners = async (req: Request, res: Response) => {
+  const pageName = req.params.pageName;
+  try {
+    const galleryMasterRepository = appSource.getRepository(bannerMaster);
+    const details: bannerDetailsDto[] =
+      await galleryMasterRepository.query(`select * from  [${process.env.DB_NAME}].[dbo].[banner_master] bm 
+inner join  [${process.env.DB_NAME}].[dbo].[banner_master_nested] bmn on bmn.bannerid = bm.bannerid 
+where bm.menu_name = '${pageName}'
+        `);
+
     res.status(200).send({
       Result: details,
     });
