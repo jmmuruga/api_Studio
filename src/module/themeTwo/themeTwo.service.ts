@@ -131,26 +131,26 @@ export const getAllImages = async (req: Request, res: Response) => {
   }
 };
 
-export const getBanners = async (req: Request, res: Response) => {
-  const pageName = req.params.pageName;
-  try {
-    const galleryMasterRepository = appSource.getRepository(bannerMaster);
-    const details: bannerDetailsDto[] =
-      await galleryMasterRepository.query(`select * from  [${process.env.DB_NAME}].[dbo].[banner_master] bm 
-inner join  [${process.env.DB_NAME}].[dbo].[banner_master_nested] bmn on bmn.bannerid = bm.bannerid 
-where bm.menu_name = '${pageName}'
-        `);
+// export const getBanners = async (req: Request, res: Response) => {
+//   const pageName = req.params.pageName;
+//   try {
+//     const galleryMasterRepository = appSource.getRepository(bannerMaster);
+//     const details: bannerDetailsDto[] =
+//       await galleryMasterRepository.query(`select * from  [${process.env.DB_NAME}].[dbo].[banner_master] bm 
+// inner join  [${process.env.DB_NAME}].[dbo].[banner_master_nested] bmn on bmn.bannerid = bm.bannerid 
+// where bm.menu_name = '${pageName}'
+//         `);
 
-    res.status(200).send({
-      Result: details,
-    });
-  } catch (error) {
-    console.log(error);
-    if (error instanceof ValidationException) {
-      return res.status(400).send({
-        message: error?.message,
-      });
-    }
-    res.status(500).send(error);
-  }
-};
+//     res.status(200).send({
+//       Result: details,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     if (error instanceof ValidationException) {
+//       return res.status(400).send({
+//         message: error?.message,
+//       });
+//     }
+//     res.status(500).send(error);
+//   }
+// };
