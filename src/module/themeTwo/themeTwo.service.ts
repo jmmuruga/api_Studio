@@ -89,7 +89,7 @@ export const getAlbumImages = async (req: Request, res: Response) => {
   try {
     const galleryMasterRepository = appSource.getRepository(galleryMaster);
     const details: galleryDetailsDto[] = await galleryMasterRepository.query(`
-        select gmn.baseimg from [${process.env.DB_NAME}].[dbo].[gallery_master] gm
+        select gmn.baseimg,gm.title,gm.album_name from [${process.env.DB_NAME}].[dbo].[gallery_master] gm
 inner join [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid and gmn.isactive = 1
 where gm.isactive = 1 and gm.albumid = ${albumId}
         `);
@@ -98,7 +98,7 @@ where gm.isactive = 1 and gm.albumid = ${albumId}
       Result: details,
     });
   } catch (error) {
-    console.log(error);
+    console.log('geall',error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
