@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deleteGalary, deletePermanantlyGallery, deletePermanantlyGalleryNested, getDeletedGalleryMaster, getDeletedGalleryMasterNested, getGalleryList, getGalleryMasterNestedList, newGallery, restoreDeleteGalary, restoreDeleteGalaryNested } from "./gallery.service";
+import { addMorePhoto, deleteGalary, deletePermanantlyGallery, deletePermanantlyGalleryNested, deletePhoto, getAlbumPhotos, getDeletedGalleryMaster, getDeletedGalleryMasterNested, getGalleryList, getGalleryMasterNestedList, newGallery, restoreDeleteGalary, restoreDeleteGalaryNested } from "./gallery.service";
 import { auth } from "../../shared/helper";
 
 const galleryRouter = Router();
@@ -13,4 +13,7 @@ galleryRouter.delete('/deletePermanantlyGallery/:albumid', auth, (req, res) => d
 galleryRouter.put('/restoreDeleteGalary/:albumid', auth, (req, res) => restoreDeleteGalary(req, res));
 galleryRouter.delete('/deletePermanantlyGalleryNested/:photoid', auth, (req, res) => deletePermanantlyGalleryNested(req, res));
 galleryRouter.put('/restoreDeleteGalaryNested/:photoid', auth, (req, res) => restoreDeleteGalaryNested(req, res));
+galleryRouter.post('/addMorePhoto', auth, (req, res) => addMorePhoto(req, res));
+galleryRouter.get('/getAlbumPhotos/:albumid/:count', auth, (req, res) => getAlbumPhotos(req, res));
+galleryRouter.put('/deletePhoto/:photoid', auth, (req, res) => deletePhoto(req, res));
 export default galleryRouter;

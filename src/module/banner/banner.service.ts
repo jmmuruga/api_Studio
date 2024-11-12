@@ -108,7 +108,10 @@ export const newBanner = async (req: Request, res: Response) => {
             // Step 2: Insert into the child table (bannerMasterNested)
             const newPhotos = payload.photos.map(photo => ({
                 bannerid: savedBanner.bannerid, // Use generated bannerid
-                baseimg: photo.baseimg
+                baseimg: photo.baseimg,
+                title: photo.title,
+                description: photo.description,
+                url_link: photo.url_link
             }));
 
             await bannerNestedRepoistry.save(newPhotos);

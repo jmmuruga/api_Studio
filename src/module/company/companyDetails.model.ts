@@ -8,9 +8,11 @@ export class companyDetails {
     @Column()
     e_mail: string;
     @Column()
-    phone: String;
+    mobile: String;
     @Column()
-    phone_two: string;
+    whats_app: string;
+    @Column()
+    land_line: string;
     @Column()
     website: string;
     @Column({ type: 'ntext' })

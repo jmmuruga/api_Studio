@@ -5,8 +5,6 @@ export class bannerMaster {
     bannerid: number;
     @Column()
     menu_name: string;
-    @Column()
-    title: string;
     @Column({ nullable: true })
     cuid: number;
     @Column({ nullable: true })
@@ -26,4 +24,10 @@ export class bannerMasterNested {
     bannerid: number;
     @Column({ type: 'ntext' })
     baseimg: string;
+    @Column({ nullable: true })
+    title: string;
+    @Column({ nullable: true })
+    description: string;
+    @Column({ nullable: true })
+    url_link: string;
 }

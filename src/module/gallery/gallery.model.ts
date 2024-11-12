@@ -10,6 +10,8 @@ export class galleryMaster {
     @Column()
     description: string;
     @Column()
+    location: string;
+    @Column()
     isactive: boolean;
     @Column({ nullable: true })
     cuid: number;

@@ -59,8 +59,9 @@ export const getGalleryListAsMenu = async (req: Request, res: Response) => {
 
 export const getAlbumPhotos = async (req: Request, res: Response) => {
     const id = req.params.albumid;
+    const count = req.params.count;
     try {
-        console.log('call')
+        console.log('call',count)
         const ParentRepository = appSource.getRepository(galleryMaster);
         const parent = await ParentRepository
             .createQueryBuilder('galleryMaster')
@@ -79,6 +80,11 @@ export const getAlbumPhotos = async (req: Request, res: Response) => {
             }).andWhere("galleryMasterNested.isactive = :isactive", {
                 isactive: true,
             })
+            .andWhere("galleryMasterNested.photoid > :photoid", {
+                photoid: count,
+            })
+            .orderBy("galleryMasterNested.albumid", "ASC")
+            .limit(4)
             .getMany();
         res.status(200).send({
             Result: { parent: parent, child: nested }

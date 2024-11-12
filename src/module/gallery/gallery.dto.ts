@@ -6,6 +6,7 @@ export interface galleryDetailsDto {
     album_name: string;
     title: string;
     description: string;
+    location: string;
     isactive: boolean;
     cuid: number;
     muid: number;
@@ -25,6 +26,7 @@ export const galleryDetailsValidation = Joi.object({
     albumid: Joi.number().optional().allow(null, ""),
     album_name: Joi.string().required(),
     title: Joi.string().required(),
+    location: Joi.string().required(),
     description: Joi.string().required(),
     isactive: Joi.boolean().required(),
     cuid: Joi.number().required(),
@@ -39,3 +41,15 @@ export const galleryDetailsValidation = Joi.object({
     ).required() // photos must be provided
 });
 
+
+export const galleryPhotosValidation = Joi.object({
+    albumid: Joi.number().required(),
+    photos: Joi.array().items( // Validate photos array
+        Joi.object({
+            photoid: Joi.number().optional().allow(null, ""),
+            albumid: Joi.number().optional().allow(null, ""),
+            baseimg: Joi.string().required(),
+            isactive: Joi.boolean().required()
+        })
+    ).required() // photos must be provided
+});

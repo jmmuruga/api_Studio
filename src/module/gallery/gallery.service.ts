@@ -1,6 +1,6 @@
 import { appSource } from "../../core/db";
 import { HttpException, ValidationException } from "../../core/exception";
-import { galleryDetailsDto, galleryDetailsValidation } from "./gallery.dto";
+import { galleryDetailsDto, galleryDetailsValidation, galleryPhotosValidation } from "./gallery.dto";
 import { galleryMaster, galleryMasterNested } from "./gallery.model";
 import { Request, Response } from "express";
 
@@ -41,7 +41,7 @@ export const getGalleryMasterNestedList = async (req: Request, res: Response) =>
                 albumid: id,
             }).andWhere("galleryMasterNested.isactive = :isactive", {
                 isactive: true,
-            })
+            }).orderBy("galleryMasterNested.photoid", "ASC").limit(10)
             .getMany();
         res.status(200).send({
             Result: dataList
@@ -119,23 +119,23 @@ export const newGallery = async (req: Request, res: Response) => {
                 const { albumid, photos, ...updatePayload } = payload;
                 await galleryMasterRepoistry.update({ albumid: payload.albumid }, updatePayload);
 
-                await galleryNestedRepoistry
-                    .createQueryBuilder()
-                    .update(galleryMasterNested)
-                    .set({ isactive: false })
-                    .where({ albumid: payload.albumid }).execute();
-                // Update or insert child entries (photos)
-                for (const photo of payload.photos) {
-                    const { photoid, ...newNested } = photo;
-                    if (photo.photoid > 0) {
-                        // Update existing photo
-                        await galleryNestedRepoistry.update({ photoid: photo.photoid }, newNested);
-                    } else {
-                        // Insert new photo
-                        const newPhoto = galleryNestedRepoistry.create({ ...newNested, albumid: payload.albumid });
-                        await galleryNestedRepoistry.save(newPhoto);
-                    }
-                }
+                // await galleryNestedRepoistry
+                //     .createQueryBuilder()
+                //     .update(galleryMasterNested)
+                //     .set({ isactive: false })
+                //     .where({ albumid: payload.albumid }).execute();
+                // // Update or insert child entries (photos)
+                // for (const photo of payload.photos) {
+                //     const { photoid, ...newNested } = photo;
+                //     if (photo.photoid > 0) {
+                //         // Update existing photo
+                //         await galleryNestedRepoistry.update({ photoid: photo.photoid }, newNested);
+                //     } else {
+                //         // Insert new photo
+                //         const newPhoto = galleryNestedRepoistry.create({ ...newNested, albumid: payload.albumid });
+                //         await galleryNestedRepoistry.save(newPhoto);
+                //     }
+                // }
 
                 res.status(200).send({ IsSuccess: "Gallery and Photos Updated successfully" });
             }
@@ -326,6 +326,93 @@ export const restoreDeleteGalaryNested = async (req: Request, res: Response) => 
 
         res.status(200).send({
             IsSuccess: `Photo Restored successfully!`,
+        });
+    }
+    catch (error) {
+        if (error instanceof ValidationException) {
+            return res.status(400).send({
+                message: error?.message,
+            });
+        }
+        res.status(500).send(error);
+    }
+}
+
+
+export const addMorePhoto = async (req: Request, res: Response) => {
+    const payload: galleryDetailsDto = req.body;
+    try {
+        // Validate parent and child data
+        const validation = galleryPhotosValidation.validate(payload);
+        if (validation?.error) {
+            throw new ValidationException(validation.error.message);
+        }
+
+        const galleryNestedRepoistry = appSource.getRepository(galleryMasterNested);
+
+        const newPhotos = payload.photos.map(photo => ({
+            albumid: payload.albumid, // Use generated albumid
+            baseimg: photo.baseimg,
+            isactive: photo.isactive,
+        }));
+
+        await galleryNestedRepoistry.save(newPhotos);
+        res.status(200).send({ IsSuccess: "Photos added successfully" });
+
+    } catch (error) {
+        console.log('galerror', error)
+        if (error instanceof ValidationException) {
+            return res.status(400).send({ message: error.message });
+        }
+        res.status(500).send({ message: 'Internal server error' });
+    }
+};
+
+export const getAlbumPhotos = async (req: Request, res: Response) => {
+    const id = req.params.albumid;
+    const count = req.params.count;
+    try {
+        console.log('call', count)
+        const Repository = appSource.getRepository(galleryMasterNested);
+        const nested = await Repository
+            .createQueryBuilder('galleryMasterNested')
+            .where("galleryMasterNested.albumid = :albumid", {
+                albumid: id,
+            }).andWhere("galleryMasterNested.isactive = :isactive", {
+                isactive: true,
+            })
+            .andWhere("galleryMasterNested.photoid > :photoid", {
+                photoid: count,
+            })
+            .orderBy("galleryMasterNested.albumid", "ASC")
+            .limit(10)
+            .getMany();
+        res.status(200).send({
+            Result: nested
+        });
+    } catch (error) {
+        console.log('error', error)
+        if (error instanceof ValidationException) {
+            return res.status(400).send({
+                message: error?.message,
+            });
+        }
+        res.status(500).send(error);
+    }
+};
+
+export const deletePhoto = async (req: Request, res: Response) => {
+    const id = req.params.photoid;
+    const delRepo = appSource.getRepository(galleryMasterNested);
+    try {
+        await delRepo
+            .createQueryBuilder()
+            .update(galleryMasterNested)
+            .set({ isactive: false })
+            .where({ photoid: id }).execute();
+
+        res.status(200).send({
+            IsSuccess: `Photo Deleted successfully!`,
         });
     }
     catch (error) {
