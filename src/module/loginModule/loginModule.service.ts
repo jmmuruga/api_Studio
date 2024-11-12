@@ -34,6 +34,7 @@ export const login = async (req: Request, res: Response) => {
         res.status(200).send({
             Result: {
                 id: user.userid,
+                user_name:user.user_name,
                 token,
                 status: 'Login Success'
             },
