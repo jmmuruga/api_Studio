@@ -150,6 +150,8 @@ export const newGallery = async (req: Request, res: Response) => {
                 albumid: savedGallery.albumid, // Use generated albumid
                 baseimg: photo.baseimg,
                 isactive: photo.isactive,
+                cuid:photo.cuid,
+                muid:photo.muid
             }));
 
             await galleryNestedRepoistry.save(newPhotos);
@@ -354,6 +356,8 @@ export const addMorePhoto = async (req: Request, res: Response) => {
             albumid: payload.albumid, // Use generated albumid
             baseimg: photo.baseimg,
             isactive: photo.isactive,
+            cuid:photo.cuid,
+            muid:photo.muid
         }));
 
         await galleryNestedRepoistry.save(newPhotos);

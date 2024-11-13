@@ -8,6 +8,7 @@ export interface galleryDetailsDto {
     description: string;
     location: string;
     isactive: boolean;
+    status: boolean;
     cuid: number;
     muid: number;
     photos: galleryDetailsNestedDto[]; // Add photos array
@@ -19,6 +20,8 @@ export interface galleryDetailsNestedDto {
     albumid: number;
     baseimg: string;
     isactive: boolean;
+    cuid: number;
+    muid: number;
 }
 
 // Parent validation schema
@@ -29,6 +32,7 @@ export const galleryDetailsValidation = Joi.object({
     location: Joi.string().required(),
     description: Joi.string().required(),
     isactive: Joi.boolean().required(),
+    status: Joi.boolean().required(),
     cuid: Joi.number().required(),
     muid: Joi.number().required(),
     photos: Joi.array().items( // Validate photos array
@@ -37,6 +41,8 @@ export const galleryDetailsValidation = Joi.object({
             albumid: Joi.number().optional().allow(null, ""),
             baseimg: Joi.string().required(),
             isactive: Joi.boolean().required(),
+            cuid: Joi.number().required(),
+            muid: Joi.number().required()
         })
     ).required() // photos must be provided
 });
@@ -49,7 +55,9 @@ export const galleryPhotosValidation = Joi.object({
             photoid: Joi.number().optional().allow(null, ""),
             albumid: Joi.number().optional().allow(null, ""),
             baseimg: Joi.string().required(),
-            isactive: Joi.boolean().required()
+            isactive: Joi.boolean().required(),
+            cuid: Joi.number().required(),
+            muid: Joi.number().required()
         })
     ).required() // photos must be provided
 });
