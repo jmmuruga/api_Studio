@@ -4,5 +4,5 @@ import { getAlbumPhotos, getBannerByMenuName, getGalleryListAsMenu } from "./use
 const userThemeRouter = Router();
 userThemeRouter.get('/getBannerByMenuName/:menu_name', (req, res) => getBannerByMenuName(req, res));
 userThemeRouter.get('/getGalleryListAsMenu', (req, res) => getGalleryListAsMenu(req, res));
-userThemeRouter.get('/getAlbumPhotos/:albumid', (req, res) => getAlbumPhotos(req, res));
+userThemeRouter.get('/getAlbumPhotos/:albumid/:count', (req, res) => getAlbumPhotos(req, res));
 export default userThemeRouter;

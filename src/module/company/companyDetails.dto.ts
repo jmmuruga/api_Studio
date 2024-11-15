@@ -4,8 +4,9 @@ export interface companyDetailsDto {
     companyid: number;
     company_name: string;
     e_mail: string;
-    phone: String;
-    phone_two: string;
+    mobile: String;
+    whats_app: string;
+    land_line: string;
     website: string;
     address: string;
     logo: string;
@@ -16,8 +17,9 @@ export const companyDetailsValidation = Joi.object({
     companyid: Joi.number().optional().allow(null, ""),
     company_name: Joi.string().required(),
     e_mail: Joi.string().required(),
-    phone: Joi.string().required(),
-    phone_two: Joi.string().optional().allow(null, ""),
+    mobile: Joi.string().required(),
+    whats_app: Joi.string().optional().allow(null, ""),
+    land_line: Joi.string().optional().allow(null, ""),
     website: Joi.string().optional().allow(null, ""),
     address: Joi.string().required(),
     logo: Joi.string().optional().allow(null, ""),

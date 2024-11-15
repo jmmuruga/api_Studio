@@ -11,12 +11,10 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
         if (!bearerToken) {
             throw new UnauthenticatedException("Unauthenticated access");
         }
-        console.log('Jwt1',bearerToken)
         const jwtVerification = jwt.verify(
             bearerToken,
             process.env.JWT_SECRET_KEY as string
         );
-        console.log('Jwt',jwtVerification)
         if (typeof jwtVerification === "string" || !jwtVerification) {
             throw new UnauthenticatedException("Unauthenticated access");
         }
@@ -30,7 +28,7 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
         res.locals.user = user;
         next();
     } catch (error) {
-        console.log('Error',error)
+        console.log('Error', error)
         res.status(401).send({ message: "Unauthenticated" });
     }
 };
