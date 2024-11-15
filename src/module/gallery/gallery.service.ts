@@ -10,13 +10,13 @@ export const getGalleryList = async (req: Request, res: Response) => {
         const galleryMasterRepository = appSource.getRepository(galleryMaster);
         const details: galleryDetailsDto[] = await galleryMasterRepository.query(`
     with getCount as (
-        select count(albumid) as counts,albumid from [${process.env.DB_NAME}].[dbo].[gallery_master_nested] where isactive=1
+        select count(albumid) as counts,albumid from [${process.env.DB_NAME}].[dbo].[gallery_master_nested] where isdelete=1
         group by albumid
         )
         
         select gm.*,gmncount.counts from [${process.env.DB_NAME}].[dbo].[gallery_master] gm
         left join getCount gmncount on gmncount.albumid=gm.albumid
-        where gm.isactive=1
+        where gm.isdelete=1
   `);
         res.status(200).send({
             Result: details
@@ -39,8 +39,8 @@ export const getGalleryMasterNestedList = async (req: Request, res: Response) =>
             .createQueryBuilder('galleryMasterNested')
             .where("galleryMasterNested.albumid = :albumid", {
                 albumid: id,
-            }).andWhere("galleryMasterNested.isactive = :isactive", {
-                isactive: true,
+            }).andWhere("galleryMasterNested.isdelete = :isdelete", {
+                isdelete: true,
             }).orderBy("galleryMasterNested.photoid", "ASC").limit(10)
             .getMany();
         res.status(200).send({
@@ -61,8 +61,8 @@ export const getDeletedGalleryMaster = async (req: Request, res: Response) => {
         const Repository = appSource.getRepository(galleryMaster);
         const dataList = await Repository
             .createQueryBuilder('galleryMaster')
-            .where("galleryMaster.isactive = :isactive", {
-                isactive: false,
+            .where("galleryMaster.isdelete = :isdelete", {
+                isdelete: false,
             })
             .getMany();
         res.status(200).send({
@@ -83,8 +83,8 @@ export const getDeletedGalleryMasterNested = async (req: Request, res: Response)
         const Repository = appSource.getRepository(galleryMasterNested);
         const dataList = await Repository
             .createQueryBuilder('galleryMasterNested')
-            .where("galleryMasterNested.isactive = :isactive", {
-                isactive: false,
+            .where("galleryMasterNested.isdelete = :isdelete", {
+                isdelete: false,
             })
             .getMany();
         res.status(200).send({
@@ -104,6 +104,16 @@ export const getDeletedGalleryMasterNested = async (req: Request, res: Response)
 export const newGallery = async (req: Request, res: Response) => {
     const payload: galleryDetailsDto = req.body;
     try {
+
+        // Strip unwanted fields like createdAt from the photos array
+        if (payload.photos && Array.isArray(payload.photos)) {
+            payload.photos = payload.photos.map(photo => {
+                // Strip 'createdAt' from the photo object
+                const { createdAt, updatedAt, ...validPhotoFields } = photo;
+                return validPhotoFields;
+            });
+        }
+
         // Validate parent and child data
         const validation = galleryDetailsValidation.validate(payload);
         if (validation?.error) {
@@ -119,24 +129,6 @@ export const newGallery = async (req: Request, res: Response) => {
                 const { albumid, photos, ...updatePayload } = payload;
                 await galleryMasterRepoistry.update({ albumid: payload.albumid }, updatePayload);
 
-                // await galleryNestedRepoistry
-                //     .createQueryBuilder()
-                //     .update(galleryMasterNested)
-                //     .set({ isactive: false })
-                //     .where({ albumid: payload.albumid }).execute();
-                // // Update or insert child entries (photos)
-                // for (const photo of payload.photos) {
-                //     const { photoid, ...newNested } = photo;
-                //     if (photo.photoid > 0) {
-                //         // Update existing photo
-                //         await galleryNestedRepoistry.update({ photoid: photo.photoid }, newNested);
-                //     } else {
-                //         // Insert new photo
-                //         const newPhoto = galleryNestedRepoistry.create({ ...newNested, albumid: payload.albumid });
-                //         await galleryNestedRepoistry.save(newPhoto);
-                //     }
-                // }
-
                 res.status(200).send({ IsSuccess: "Gallery and Photos Updated successfully" });
             }
         } else {
@@ -149,7 +141,9 @@ export const newGallery = async (req: Request, res: Response) => {
             const newPhotos = payload.photos.map(photo => ({
                 albumid: savedGallery.albumid, // Use generated albumid
                 baseimg: photo.baseimg,
-                isactive: photo.isactive,
+                isdelete: photo.isdelete,
+                cuid: photo.cuid,
+                muid: photo.muid
             }));
 
             await galleryNestedRepoistry.save(newPhotos);
@@ -181,7 +175,7 @@ export const deleteGalary = async (req: Request, res: Response) => {
         await delRepo
             .createQueryBuilder()
             .update(galleryMaster)
-            .set({ isactive: false })
+            .set({ isdelete: false })
             .where({ albumid: id }).execute();
 
         res.status(200).send({
@@ -255,7 +249,7 @@ export const restoreDeleteGalary = async (req: Request, res: Response) => {
         await delRepo
             .createQueryBuilder()
             .update(galleryMaster)
-            .set({ isactive: true })
+            .set({ isdelete: true })
             .where({ albumid: id }).execute();
 
         res.status(200).send({
@@ -321,7 +315,7 @@ export const restoreDeleteGalaryNested = async (req: Request, res: Response) => 
         await delRepo
             .createQueryBuilder()
             .update(galleryMasterNested)
-            .set({ isactive: true })
+            .set({ isdelete: true })
             .where({ photoid: id }).execute();
 
         res.status(200).send({
@@ -353,7 +347,9 @@ export const addMorePhoto = async (req: Request, res: Response) => {
         const newPhotos = payload.photos.map(photo => ({
             albumid: payload.albumid, // Use generated albumid
             baseimg: photo.baseimg,
-            isactive: photo.isactive,
+            isdelete: photo.isdelete,
+            cuid: photo.cuid,
+            muid: photo.muid
         }));
 
         await galleryNestedRepoistry.save(newPhotos);
@@ -378,8 +374,8 @@ export const getAlbumPhotos = async (req: Request, res: Response) => {
             .createQueryBuilder('galleryMasterNested')
             .where("galleryMasterNested.albumid = :albumid", {
                 albumid: id,
-            }).andWhere("galleryMasterNested.isactive = :isactive", {
-                isactive: true,
+            }).andWhere("galleryMasterNested.isdelete = :isdelete", {
+                isdelete: true,
             })
             .andWhere("galleryMasterNested.photoid > :photoid", {
                 photoid: count,
@@ -408,11 +404,47 @@ export const deletePhoto = async (req: Request, res: Response) => {
         await delRepo
             .createQueryBuilder()
             .update(galleryMasterNested)
-            .set({ isactive: false })
+            .set({ isdelete: false })
             .where({ photoid: id }).execute();
 
         res.status(200).send({
             IsSuccess: `Photo Deleted successfully!`,
+        });
+    }
+    catch (error) {
+        if (error instanceof ValidationException) {
+            return res.status(400).send({
+                message: error?.message,
+            });
+        }
+        res.status(500).send(error);
+    }
+}
+
+
+export const changeStatus = async (req: Request, res: Response) => {
+    const id = req.params.albumid;
+    const statusVal: boolean = req.params.status === 'true';
+    const repo = appSource.getRepository(galleryMaster);
+
+    try {
+        const typeNameFromDb = await repo
+            .createQueryBuilder('galleryMaster')
+            .where("galleryMaster.albumid = :albumid", {
+                albumid: id,
+            })
+            .getOne();
+        if (!typeNameFromDb?.albumid) {
+            throw new HttpException("Data not Found", 400);
+        }
+        await repo
+            .createQueryBuilder()
+            .update(galleryMaster)
+            .set({ status: statusVal })
+            .where({ albumid: id }).execute();
+
+        res.status(200).send({
+            IsSuccess: `Status Updated successfully!`,
         });
     }
     catch (error) {

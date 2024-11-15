@@ -12,7 +12,9 @@ export class galleryMaster {
     @Column()
     location: string;
     @Column()
-    isactive: boolean;
+    isdelete: boolean;
+    @Column()
+    status: boolean;
     @Column({ nullable: true })
     cuid: number;
     @Column({ nullable: true })
@@ -33,5 +35,13 @@ export class galleryMasterNested {
     @Column({ type: 'ntext' })
     baseimg: string;
     @Column()
-    isactive: boolean;
+    isdelete: boolean;
+    @Column({ nullable: true })
+    cuid: number;
+    @Column({ nullable: true })
+    muid: number;
+    @CreateDateColumn({ name: "created_at" })
+    createdAt: Date;
+    @UpdateDateColumn({ name: "updated_at" })
+    updatedAt: Date;
 }

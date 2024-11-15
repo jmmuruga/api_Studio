@@ -20,3 +20,12 @@ export const userDetailsValidation = Joi.object({
     cuid: Joi.number().required(),
     muid: Joi.number().required(),
 })
+
+
+export const resetPasswordValidation = Joi.object({
+    userid: Joi.number().required(),
+    otp: Joi.string().required(),
+    password: Joi.string().required(),
+    c_password: Joi.string().required(),
+    muid: Joi.number().required(),
+})
