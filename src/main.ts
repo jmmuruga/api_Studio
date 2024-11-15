@@ -9,6 +9,7 @@ import bannerRouter from "./module/banner/banner.controller";
 import userThemeRouter from "./module/userTheme/userTheme.controller";
 import loginModuleRouter from "./module/loginModule/loginModule.controller";
 import companyDetailRouter from "./module/company/companyDetails.controller";
+import themeOneRouter from "./module/themeOne/themeOne.controller";
 const app = express();
 dotenv.config();
 const PORT = process.env.PORT || 5000;
@@ -26,4 +27,9 @@ app.use('/galleryMasterRouter', cors(corsOptions), galleryRouter);
 app.use('/bannerMasterRouter', cors(corsOptions), bannerRouter);
 app.use('/userThemeRouter', cors(corsOptions), userThemeRouter);
 app.use('/loginModuleRouter', cors(corsOptions), loginModuleRouter);
+app.use('/themeOneRouter', cors(corsOptions),themeOneRouter)
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));
+
+
+
+// test saranya be
