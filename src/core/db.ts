@@ -11,7 +11,8 @@ const Entities: any[] = [
   galleryMasterNested,
   bannerMaster,
   bannerMasterNested,
-  companyDetails
+  companyDetails,
+ ,
 ]
 export const appSource = new DataSource({
   type: "mssql",
