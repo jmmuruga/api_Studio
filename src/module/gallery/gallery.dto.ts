@@ -7,7 +7,7 @@ export interface galleryDetailsDto {
     title: string;
     description: string;
     location: string;
-    isactive: boolean;
+    isdelete: boolean;
     status: boolean;
     cuid: number;
     muid: number;
@@ -19,8 +19,10 @@ export interface galleryDetailsNestedDto {
     photoid: number;
     albumid: number;
     baseimg: string;
-    isactive: boolean;
+    isdelete: boolean;
     cuid: number;
+    createdAt?: Date;  // Add this field if it's possible for 'createdAt' to exist
+    updatedAt?: Date;  // Add this field if it's possible for 'updatedAt' to exist
     muid: number;
 }
 
@@ -31,7 +33,7 @@ export const galleryDetailsValidation = Joi.object({
     title: Joi.string().required(),
     location: Joi.string().required(),
     description: Joi.string().required(),
-    isactive: Joi.boolean().required(),
+    isdelete: Joi.boolean().required(),
     status: Joi.boolean().required(),
     cuid: Joi.number().required(),
     muid: Joi.number().required(),
@@ -40,7 +42,7 @@ export const galleryDetailsValidation = Joi.object({
             photoid: Joi.number().optional().allow(null, ""),
             albumid: Joi.number().optional().allow(null, ""),
             baseimg: Joi.string().required(),
-            isactive: Joi.boolean().required(),
+            isdelete: Joi.boolean().required(),
             cuid: Joi.number().required(),
             muid: Joi.number().required()
         })
@@ -55,7 +57,7 @@ export const galleryPhotosValidation = Joi.object({
             photoid: Joi.number().optional().allow(null, ""),
             albumid: Joi.number().optional().allow(null, ""),
             baseimg: Joi.string().required(),
-            isactive: Joi.boolean().required(),
+            isdelete: Joi.boolean().required(),
             cuid: Joi.number().required(),
             muid: Joi.number().required()
         })

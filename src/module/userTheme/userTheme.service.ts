@@ -35,13 +35,13 @@ export const getGalleryListAsMenu = async (req: Request, res: Response) => {
         const galleryMasterRepository = appSource.getRepository(galleryMaster);
         const details: galleryDetailsDto[] = await galleryMasterRepository.query(`
     with getCount as (
-        select count(albumid) as counts,albumid from [${process.env.DB_NAME}].[dbo].[gallery_master_nested] where isactive=1
+        select count(albumid) as counts,albumid from [${process.env.DB_NAME}].[dbo].[gallery_master_nested] where isdelete=1
         group by albumid
         )
         
         select gm.*,gmncount.counts from [${process.env.DB_NAME}].[dbo].[gallery_master] gm
         left join getCount gmncount on gmncount.albumid=gm.albumid
-        where gm.isactive=1
+        where gm.isdelete=1
   `);
         res.status(200).send({
             Result: details
@@ -61,14 +61,14 @@ export const getAlbumPhotos = async (req: Request, res: Response) => {
     const id = req.params.albumid;
     const count = req.params.count;
     try {
-        console.log('call',count)
+        console.log('call', count)
         const ParentRepository = appSource.getRepository(galleryMaster);
         const parent = await ParentRepository
             .createQueryBuilder('galleryMaster')
             .where("galleryMaster.albumid = :albumid", {
                 albumid: id,
-            }).andWhere("galleryMaster.isactive = :isactive", {
-                isactive: true,
+            }).andWhere("galleryMaster.isdelete = :isdelete", {
+                isdelete: true,
             })
             .getMany();
 
@@ -77,8 +77,8 @@ export const getAlbumPhotos = async (req: Request, res: Response) => {
             .createQueryBuilder('galleryMasterNested')
             .where("galleryMasterNested.albumid = :albumid", {
                 albumid: id,
-            }).andWhere("galleryMasterNested.isactive = :isactive", {
-                isactive: true,
+            }).andWhere("galleryMasterNested.isdelete = :isdelete", {
+                isdelete: true,
             })
             .andWhere("galleryMasterNested.photoid > :photoid", {
                 photoid: count,
