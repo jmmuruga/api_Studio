@@ -3,6 +3,7 @@ import {
   getAlbumImages,
   getAlbumName,
   getAllImages,
+  getCompanyDetails,
   getPhotographyTypeServices,
 } from "./themeTwo.service";
 import { sendMail } from "./mail.service";
@@ -19,6 +20,9 @@ themeTwoRouter.get("/getAlbumImages/:albumid", (req, res) => {
 });
 themeTwoRouter.get("/getAllImages", (req, res) => {
   getAllImages(req, res);
+});
+themeTwoRouter.get("/getCompanyDetails", (req, res) => {
+  getCompanyDetails(req, res);
 });
 // themeTwoRouter.get('/getBanners/:pageName',(req,res)=>{getBanners(req,res)});
 themeTwoRouter.post("/sendMail", (req, res) => {
