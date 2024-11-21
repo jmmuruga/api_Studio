@@ -7,7 +7,7 @@ export class galleryMaster {
     album_name: string;
     @Column()
     title: string;
-    @Column()
+    @Column({ type: 'ntext' })
     description: string;
     @Column()
     location: string;
