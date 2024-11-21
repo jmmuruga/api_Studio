@@ -5,10 +5,10 @@ import { ValidationException } from "../../core/exception";
 import { appSource } from "../../core/db";
 
 export const getGalleryListAsMenu = async (req: Request, res: Response) => {
-  console.log('menu called ')
+  console.log("menu called ");
   try {
-      const galleryMasterRepository = appSource.getRepository(galleryMaster);
-      const details: galleryDetailsDto[] = await galleryMasterRepository.query(`
+    const galleryMasterRepository = appSource.getRepository(galleryMaster);
+    const details: galleryDetailsDto[] = await galleryMasterRepository.query(`
   with getCount as (
       select count(albumid) as counts,albumid from [${process.env.DB_NAME}].[dbo].[gallery_master_nested] where isdelete=1
       group by albumid
@@ -18,15 +18,63 @@ export const getGalleryListAsMenu = async (req: Request, res: Response) => {
       left join getCount gmncount on gmncount.albumid=gm.albumid
       where gm.isdelete=1
 `);
-      res.status(200).send({
-          Result: details
-      });
+    res.status(200).send({
+      Result: details,
+    });
   } catch (error) {
-      if (error instanceof ValidationException) {
-          return res.status(400).send({
-              message: error?.message,
-          });
-      }
-      res.status(500).send(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
   }
 };
+
+export const getImageListByAlbumid = async (req: Request, res: Response) => {
+    console.log('123445')
+  const albumid = req.params.albumid;
+  console.log('123445',albumid)
+  try {
+    const repo = appSource.getRepository(galleryMasterNested);
+    const details: galleryDetailsDto[] = await repo.query(`
+        select * from [${process.env.DB_NAME}].[dbo].[gallery_master_nested] where isdelete=1 and albumid=${albumid};
+  `);
+    res.status(200).send({
+      Result: details,
+    });
+  } catch (error) {
+    console.log(error)
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+
+
+
+
+export const getGalleryImagesList = async (req: Request, res: Response) => {
+
+    try {
+      const Repository = appSource.getRepository(galleryMasterNested);
+     const details = await Repository.query(`
+        select baseimg  from [${process.env.DB_NAME}].[dbo].[gallery_master_nested] where isdelete=1`)
+     console.log('called here')
+      res.status(200).send({
+        Result: details,
+      });
+    } catch (error) {
+      if (error instanceof ValidationException) {
+        return res.status(400).send({
+          message: error?.message,
+        });
+      }
+      res.status(500).send(error);
+    }
+  };
+  
