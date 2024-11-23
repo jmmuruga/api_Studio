@@ -4,6 +4,7 @@ import {
   getAlbumName,
   getAllImages,
   getCompanyDetails,
+  getLocBasedGalleryPage,
   getPhotographyTypeServices,
 } from "./themeTwo.service";
 import { sendMail } from "./mail.service";
@@ -28,5 +29,7 @@ themeTwoRouter.get("/getCompanyDetails", (req, res) => {
 themeTwoRouter.post("/sendMail", (req, res) => {
   sendMail(req, res);
 });
-
+themeTwoRouter.get("/getLocBasedGalleryPage", (req, res) => {
+  getLocBasedGalleryPage(req, res);
+});
 export default themeTwoRouter;

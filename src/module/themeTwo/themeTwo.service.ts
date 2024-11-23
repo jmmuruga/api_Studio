@@ -133,27 +133,47 @@ export const getAllImages = async (req: Request, res: Response) => {
 };
 
 export const getCompanyDetails = async (req: Request, res: Response) => {
-  try{
-      const commpanyMasterRepository = appSource.getRepository(companyDetails);
-      const details: bannerDetailsDto[] = await commpanyMasterRepository.query(`
+  try {
+    const commpanyMasterRepository = appSource.getRepository(companyDetails);
+    const details: bannerDetailsDto[] = await commpanyMasterRepository.query(`
           select company_name,e_mail,address,logo,mobile,whats_app from [${process.env.DB_NAME}].[dbo].[company_details]
           `);
-      res.status(200).send({
-        Result: details,
+    res.status(200).send({
+      Result: details,
+    });
+  } catch (error) {
+    console.log("error", error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
       });
-  }
-  catch (error) {
-      console.log("error", error);
-      if (error instanceof ValidationException) {
-        return res.status(400).send({
-          message: error?.message,
-        });
-      }
-      res.status(500).send(error);
     }
-}
+    res.status(500).send(error);
+  }
+};
 
+export const getLocBasedGalleryPage = async (req: Request, res: Response) => {
+  try {
+    const galleryMasterRepository = appSource.getRepository(galleryMaster);
+    const details = await galleryMasterRepository
+      .createQueryBuilder("galleryMaster")
+      .select("galleryMaster.location")
+      .where("galleryMaster.isdelete = :isdelete", { isdelete: true })
+      .groupBy("galleryMaster.location")
+      .getRawMany();
 
+    console.log(details, "loc");
+    res.status(200).send({ Result: details });
+  } catch (error) {
+    console.log("error", error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
 
 // export const getBanners = async (req: Request, res: Response) => {
 //   const pageName = req.params.pageName;
