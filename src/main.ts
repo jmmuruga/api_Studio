@@ -9,7 +9,7 @@ import bannerRouter from "./module/banner/banner.controller";
 import userThemeRouter from "./module/userTheme/userTheme.controller";
 import loginModuleRouter from "./module/loginModule/loginModule.controller";
 import companyDetailRouter from "./module/company/companyDetails.controller";
-import { themeFourRouter } from "./module/themeFour/themeFour.controller";
+import themeFourRouter  from "./module/themeFour/themeFour.controller";
 const app = express();
 dotenv.config();
 const PORT = process.env.PORT || 5000;

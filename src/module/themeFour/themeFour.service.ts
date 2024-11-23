@@ -11,7 +11,7 @@ export const themeFourBannerImages = async (req: Request, res: Response) => {
       await bannerMasterRepo.query(`select menu_name, baseimg, title, description from
          [${process.env.DB_name}].[dbo].[banner_master] bm inner join [banner_master_nested]
           bmn on bm.bannerid = bmn.bannerid `);
-    res.status(200).send({ result: details });
+    res.status(200).send({ Result: details });
   } catch (error) {
     console.log(error);
     if (error instanceof ValidationException) {
