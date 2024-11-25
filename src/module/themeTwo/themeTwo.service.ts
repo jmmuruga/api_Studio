@@ -157,9 +157,9 @@ export const getLocBasedGalleryPage = async (req: Request, res: Response) => {
     const galleryMasterRepository = appSource.getRepository(galleryMaster);
     const details = await galleryMasterRepository
       .createQueryBuilder("galleryMaster")
-      .select("galleryMaster.location")
+      .select("location")
       .where("galleryMaster.isdelete = :isdelete", { isdelete: true })
-      .groupBy("galleryMaster.location")
+      .groupBy("location")
       .getRawMany();
 
     console.log(details, "loc");
