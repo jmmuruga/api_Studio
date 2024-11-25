@@ -152,7 +152,7 @@ export const getCompanyDetails = async (req: Request, res: Response) => {
   }
 };
 
-export const getLocBasedGalleryPage = async (req: Request, res: Response) => {
+export const getLocName = async (req: Request, res: Response) => {
   try {
     const galleryMasterRepository = appSource.getRepository(galleryMaster);
     const details = await galleryMasterRepository
@@ -174,6 +174,29 @@ export const getLocBasedGalleryPage = async (req: Request, res: Response) => {
     res.status(500).send(error);
   }
 };
+
+export const getLocBasedAlbums = async (req: Request, res: Response) => {
+  const loc = req.params.location
+  try {
+    const galleryMasterRepository = appSource.getRepository(galleryMaster);
+    const details = await galleryMasterRepository
+      .query(`select gm.location,gmn.baseimg from gallery_master gm
+inner join gallery_master_nested gmn on gmn.albumid=gm.albumid
+where gm.location='${loc}' and gm.isdelete=1 and gmn.isdelete=1`)
+    console.log(details, "loc");
+    res.status(200).send({ Result: details });
+  } catch (error) {
+    console.log("error", error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+
 
 // export const getBanners = async (req: Request, res: Response) => {
 //   const pageName = req.params.pageName;
