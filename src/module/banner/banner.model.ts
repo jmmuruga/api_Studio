@@ -26,7 +26,7 @@ export class bannerMasterNested {
     baseimg: string;
     @Column({ nullable: true })
     title: string;
-    @Column({ nullable: true })
+    @Column({ nullable: true, type: 'ntext' })
     description: string;
     @Column({ nullable: true })
     url_link: string;
