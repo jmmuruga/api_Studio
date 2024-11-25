@@ -4,6 +4,7 @@ import {
   getAlbumName,
   getAllImages,
   getCompanyDetails,
+  getFilterImages,
   getLocBasedAlbums,
   getLocName,
   getPhotographyTypeServices,
@@ -22,6 +23,9 @@ themeTwoRouter.get("/getAlbumImages/:albumid", (req, res) => {
 });
 themeTwoRouter.get("/getAllImages", (req, res) => {
   getAllImages(req, res);
+});
+themeTwoRouter.get("/getFilterImages/:album_name", (req, res) => {
+  getFilterImages(req, res);
 });
 themeTwoRouter.get("/getCompanyDetails", (req, res) => {
   getCompanyDetails(req, res);

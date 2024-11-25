@@ -176,13 +176,13 @@ export const getLocName = async (req: Request, res: Response) => {
 };
 
 export const getLocBasedAlbums = async (req: Request, res: Response) => {
-  const loc = req.params.location
+  const loc = req.params.location;
   try {
     const galleryMasterRepository = appSource.getRepository(galleryMaster);
-    const details = await galleryMasterRepository
-      .query(`select gm.location,gmn.baseimg from gallery_master gm
-inner join gallery_master_nested gmn on gmn.albumid=gm.albumid
-where gm.location='${loc}' and gm.isdelete=1 and gmn.isdelete=1`)
+    const details =
+      await galleryMasterRepository.query(`select gm.location,gmn.baseimg from  [${process.env.DB_NAME}].[dbo].[gallery_master] gm
+inner join  [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gmn.albumid=gm.albumid
+where gm.location='${loc}' and gm.isdelete=1 and gmn.isdelete=1`);
     console.log(details, "loc");
     res.status(200).send({ Result: details });
   } catch (error) {
@@ -196,28 +196,31 @@ where gm.location='${loc}' and gm.isdelete=1 and gmn.isdelete=1`)
   }
 };
 
-
-
-// export const getBanners = async (req: Request, res: Response) => {
-//   const pageName = req.params.pageName;
-//   try {
-//     const galleryMasterRepository = appSource.getRepository(bannerMaster);
-//     const details: bannerDetailsDto[] =
-//       await galleryMasterRepository.query(`select * from  [${process.env.DB_NAME}].[dbo].[banner_master] bm
-// inner join  [${process.env.DB_NAME}].[dbo].[banner_master_nested] bmn on bmn.bannerid = bm.bannerid
-// where bm.menu_name = '${pageName}'
-//         `);
-
-//     res.status(200).send({
-//       Result: details,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     if (error instanceof ValidationException) {
-//       return res.status(400).send({
-//         message: error?.message,
-//       });
-//     }
-//     res.status(500).send(error);
-//   }
-// };
+export const getFilterImages = async (req: Request, res: Response) => {
+  const albumName = req.params.album_name;
+  try {
+    const repo = appSource.getRepository(galleryMaster);
+    let details:any[];
+    if (albumName === "All") {
+      details =
+        await repo.query(`select gm.album_name,gmn.baseimg from  [${process.env.DB_NAME}].[dbo].[gallery_master] gm 
+inner join  [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid 
+where gm.isdelete = 1`);
+    } else {
+      details =
+        await repo.query(`select gm.album_name,gmn.baseimg from  [${process.env.DB_NAME}].[dbo].[gallery_master] gm 
+      inner join  [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid 
+      where gm.isdelete = 1 and gm.album_name = '${albumName}' `);
+    }
+    console.log(details, "gallerFilter");
+    res.status(200).send({ Result: details });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
