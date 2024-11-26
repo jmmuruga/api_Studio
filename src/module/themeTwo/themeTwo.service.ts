@@ -15,7 +15,8 @@ export const getPhotographyTypeServices = async (
     const galleryMasterRepository = appSource.getRepository(galleryMaster);
     const details = await galleryMasterRepository.query(`
       SELECT gm.album_name
-      FROM [${process.env.DB_NAME}].[dbo].[gallery_master] gm
+      FROM [${process.env.DB_NAME}].[dbo].[gallery_master] gm    
+      
       WHERE gm.isdelete = 1
       GROUP BY gm.album_name`);
 
