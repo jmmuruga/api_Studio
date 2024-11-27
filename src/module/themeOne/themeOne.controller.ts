@@ -1,6 +1,6 @@
 import { Router } from "express";
-import {  getGalleryListAsMenu } from "./themeOne.service";
-import {getGalleryImagesList} from "./themeOne.service";
+import { getBannerByMenuName, getGalleryListAsMenu, getServicesImage } from "./themeOne.service";
+import { getGalleryImagesList } from "./themeOne.service";
 import { auth } from "../../shared/helper";
 import { getImageListByAlbumid } from "./themeOne.service";
 
@@ -16,5 +16,11 @@ themeOneRouter.get("/getMenus", (req, res) => {
 themeOneRouter.get("/getImageListByAlbumid/:albumid", (req, res) => {
   getImageListByAlbumid(req, res);
 });
+themeOneRouter.get("/getServicesImage", (req, res) => {
+  getServicesImage(req, res);
+});
+themeOneRouter.get("/getBannerByMenuName/:menu_name", (req, res) =>
+  getBannerByMenuName(req, res)
+);
 
 export default themeOneRouter;
