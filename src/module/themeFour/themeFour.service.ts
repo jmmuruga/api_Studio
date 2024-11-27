@@ -71,11 +71,11 @@ export const getBlogDetails = async (req: Request, res: Response) => {
     const galleryMasterRepo = appSource.getRepository(galleryMaster);
     const details: galleryDetailsDto[] = await galleryMasterRepo.query(
       `SELECT gm.albumid, gm.album_name, gm.title, 
-      CAST(gmn.baseimg AS VARCHAR(MAX)) AS baseimg
+       MIN(CAST(gmn.baseimg AS VARCHAR(MAX))) AS baseimg
 FROM [${process.env.DB_name}].[dbo].[gallery_master] gm
-INNER JOIN [${process.env.DB_name}].[dbo].[gallery_master_nested] gmn ON gm.albumid = gmn.albumid
+INNER JOIN [${process.env.DB_name}].[dbo]. [gallery_master_nested] gmn ON gm.albumid = gmn.albumid
 WHERE gm.isdelete = 1 AND gmn.isdelete = 1
-GROUP BY gm.albumid, gm.album_name, gm.title, CAST(gmn.baseimg AS VARCHAR(MAX));
+GROUP BY gm.albumid, gm.album_name, gm.title;
  `
     );
     res.status(200).send({ Result: details });
