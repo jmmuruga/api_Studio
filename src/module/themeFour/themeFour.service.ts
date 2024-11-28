@@ -34,7 +34,7 @@ export const getServices = async (req: Request, res: Response) => {
   try {
     const bannerMasterRepo = appSource.getRepository(bannerMaster);
     const details: bannerDetailsDto[] = await bannerMasterRepo.query(
-      `select title, description from banner_master bm inner join banner_master_nested bmn on bm.bannerid = bmn.bannerid `
+      `select title, description from [${process.env.DB_name}].[dbo].[banner_master] bm inner join [${process.env.DB_name}].[dbo].[banner_master_nested] bmn on bm.bannerid = bmn.bannerid `
     );
     res.status(200).send({ Result: details });
   } catch (error) {
@@ -52,7 +52,7 @@ export const getCompanyDetails = async (req: Request, res: Response) => {
   try {
     const companyDetailsRepo = appSource.getRepository(companyDetails);
     const details: companyDetailsDto[] = await companyDetailsRepo.query(
-      `select company_name, e_mail, mobile, whats_app, address, logo from company_details  `
+      `select cd.company_name, cd.e_mail, cd.mobile, cd.whats_app, cd.address, cd.logo from [${process.env.DB_name}].[dbo].[company_details] cd `
     );
     res.status(200).send({ Result: details });
   } catch (error) {
@@ -111,3 +111,47 @@ where gm.isdelete = 1 and gmn.isdelete = 1 and gm.albumid = ${albumId}
     res.status(500).send(error);
   }
 };
+
+export const getServicesType = async (req: Request, res: Response) => {
+  try {
+    const galleryMasterRepo = appSource.getRepository(galleryMaster);
+    const details: galleryDetailsDto[] =
+      await galleryMasterRepo.query(`select gm.albumid, gm.title, max(cast(gmn.baseimg as varchar(max))) as baseimg from [${process.env.DB_name}].[dbo].[gallery_master] gm 
+inner join [${process.env.DB_name}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid
+where gm.isdelete = 1 and gmn.isdelete = 1
+and (gm.album_name = 'wedding' OR gm.album_name = 'outdoor' OR gm.album_name = 'commercial')
+group by  gm.albumid, gm.title; 
+ `);
+    res.status(200).send({ Result: details });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const getAllServices = async (req: Request, res: Response) => {
+  const title = req.params.title;
+  try {
+    const galleryMasterRepo = appSource.getRepository(galleryMaster);
+    const details: galleryDetailsDto[] =
+      await galleryMasterRepo.query(`select gm.albumid, gm.title, gmn.baseimg from [${process.env.DB_name}].[dbo].[gallery_master] gm 
+inner join [${process.env.DB_name}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid 
+where gm.isdelete = 1 and gmn.isdelete = 1 and gm.title = '${title}'
+ `);
+    res.status(200).send({ Result: details });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
