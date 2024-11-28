@@ -4,7 +4,8 @@ import { galleryDetailsDto } from "../gallery/gallery.dto";
 import { ValidationException } from "../../core/exception";
 import { appSource } from "../../core/db";
 import { bannerMaster } from "../banner/banner.model";
-import { bannerDetailsDto } from "../banner/banner.dto";
+import { bannerDetailsDto } from "../banner/banner.dto"; 
+import { companyDetails } from "../company/companyDetails.model";
 
 export const getGalleryListAsMenu = async (req: Request, res: Response) => {
   console.log("menu called ");
@@ -58,11 +59,11 @@ export const getBannerByMenuName = async (req: Request, res: Response) => {
 };
 
 export const getImageListByAlbumid = async (req: Request, res: Response) => {
-  const albumid = req.params.albumid;
+  const albumid = req.params.albumid
   try {
     const repo = appSource.getRepository(galleryMasterNested);
     const details: galleryDetailsDto[] = await repo.query(`
-        select * from [${process.env.DB_NAME}].[dbo].[gallery_master_nested] where isdelete=1 and albumid=${albumid};
+        select * from [${process.env.DB_NAME}].[dbo].[gallery_master_nested] where isdelete=1 and albumid=${albumid}  ;
   `);
     res.status(200).send({
       Result: details,
@@ -114,6 +115,26 @@ group by gallery_master.albumid,
          gallery_master.description;
       
         `);
+    res.status(200).send({
+      Result: details,
+    });
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const getNavHead = async (req: Request, res: Response) => {
+  try {
+    const Repository = appSource.getRepository(companyDetails);
+    const details = await Repository.query(
+      ` select company_name,e_mail,address,mobile from [${process.env.DB_NAME}].[dbo].[company_details] `
+    );
+
     res.status(200).send({
       Result: details,
     });
