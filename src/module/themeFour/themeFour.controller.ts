@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { auth } from "../../shared/helper";
-import { getAllServices, getBannerImages, getBlogDetails, getBlogImages, getCompanyDetails, getServices, getServicesType } from "./themeFour.service";
+import { getAllServices, getBannerImages, getBlogDetails, getBlogImages, getCompanyDetails, getHomePageServices, getServices, getServicesType } from "./themeFour.service";
 
 const themeFourRouter = Router ();
 themeFourRouter.get('/themeFourBannerImages/:page', (req, res) => (getBannerImages(req, res)) );
@@ -10,5 +10,6 @@ themeFourRouter.get('/themeFourBlogDetails', (req, res) => (getBlogDetails(req, 
 themeFourRouter.get('/themeFourBlogImages/:albumid', (req, res) => (getBlogImages(req, res)));
 themeFourRouter.get('/themeFourServicesType' , (req, res) => (getServicesType(req, res)));
 themeFourRouter.get('/themeFourAllServices/:title/:albumid', (req, res) =>(getAllServices(req, res)));
+themeFourRouter.get('/getHomePageServices', (req, res) => (getHomePageServices(req, res)));
 
 export default themeFourRouter;

@@ -10,7 +10,6 @@ import { galleryDetailsDto } from "../gallery/gallery.dto";
 
 export const getBannerImages = async (req: Request, res: Response) => {
   const menuName = req.params.page;
-  console.log(menuName, "menuName");
   try {
     const bannerMasterRepo = appSource.getRepository(bannerMaster);
     const details =
@@ -74,7 +73,7 @@ export const getBlogDetails = async (req: Request, res: Response) => {
        MIN(CAST(gmn.baseimg AS VARCHAR(MAX))) AS baseimg
 FROM [${process.env.DB_name}].[dbo].[gallery_master] gm
 INNER JOIN [${process.env.DB_name}].[dbo]. [gallery_master_nested] gmn ON gm.albumid = gmn.albumid
-WHERE gm.isdelete = 1 AND gmn.isdelete = 1
+WHERE gm.isdelete = 1 AND gmn.isdelete = 1 AND gm.album_name = 'blog'
 GROUP BY gm.albumid, gm.album_name, gm.title;
  `
     );
@@ -92,7 +91,6 @@ GROUP BY gm.albumid, gm.album_name, gm.title;
 
 export const getBlogImages = async (req: Request, res: Response) => {
   const albumId = req.params.albumid;
-  console.log(albumId,"albumId")
   try {
     const galleryMasterRepo = appSource.getRepository(galleryMaster);
     const details: galleryDetailsDto[] =
@@ -155,3 +153,38 @@ where gm.isdelete = 1 and gmn.isdelete = 1 and gm.title = '${title}'
   }
 };
 
+export const getHomePageServices = async (req: Request, res: Response) => {
+  try {
+    const galleryMasterRepo = appSource.getRepository(galleryMaster);
+    const albumList: galleryDetailsDto[] = await galleryMasterRepo.query(`
+      select album_name from [${process.env.DB_name}].[dbo].[gallery_master]
+where isdelete = 1
+group by album_name;
+      `);
+
+    for (const album of albumList) {
+      album.photos =
+        await galleryMasterRepo.query(`SELECT gm.albumid, gm.album_name,
+       gm.title, 
+       MAX(CAST(gmn.baseimg AS VARCHAR(MAX))) AS baseimg, 
+       gm.description
+FROM [${process.env.DB_name}].[dbo].[gallery_master] gm
+INNER JOIN [${process.env.DB_name}].[dbo].[gallery_master_nested] gmn 
+    ON gm.albumid = gmn.albumid
+WHERE gm.isdelete = 1 
+  AND gmn.isdelete = 1
+   AND gm.album_name = '${album.album_name}'
+GROUP BY gm.albumid, gm.album_name, gm.title, gm.description;
+ `);
+    }
+    res.status(200).send({ Result: albumList });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
