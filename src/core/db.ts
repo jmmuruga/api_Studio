@@ -12,6 +12,7 @@ const Entities: any[] = [
   bannerMaster,
   bannerMasterNested,
   companyDetails,
+
  ,
 ]
 export const appSource = new DataSource({

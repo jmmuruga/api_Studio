@@ -27,7 +27,7 @@ app.use('/galleryMasterRouter', cors(corsOptions), galleryRouter);
 app.use('/bannerMasterRouter', cors(corsOptions), bannerRouter);
 app.use('/userThemeRouter', cors(corsOptions), userThemeRouter);
 app.use('/loginModuleRouter', cors(corsOptions), loginModuleRouter);
-app.use('/themeOneRouter', cors(corsOptions),themeOneRouter)
+app.use('/themeOneRouter', cors(corsOptions),themeOneRouter);
 app.listen(PORT, () => console.log(`server upon port ${PORT}`));
 
 
