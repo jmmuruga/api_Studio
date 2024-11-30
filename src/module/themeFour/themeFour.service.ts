@@ -8,7 +8,7 @@ import { companyDetailsDto } from "../company/companyDetails.dto";
 import { galleryMaster } from "../gallery/gallery.model";
 import { galleryDetailsDto } from "../gallery/gallery.dto";
 import nodemailer from "nodemailer";
-// import { formDetails } from "../formDetails/formDetails.model";
+import { formDetails } from "../formDetails/formDetails.model";
 
 export const getBannerImages = async (req: Request, res: Response) => {
   const menuName = req.params.page;
