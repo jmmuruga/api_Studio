@@ -5,13 +5,16 @@ import { UserDetails } from "../module/userDetails/userDetails.model";
 import { galleryMaster, galleryMasterNested } from "../module/gallery/gallery.model";
 import { bannerMaster, bannerMasterNested } from "../module/banner/banner.model";
 import { companyDetails } from "../module/company/companyDetails.model";
+import { formDetails } from "../module/formDetails/formDetails.model";
 const Entities: any[] = [
   UserDetails,
   galleryMaster,
   galleryMasterNested,
   bannerMaster,
   bannerMasterNested,
-  companyDetails
+  companyDetails,
+  formDetails,
+
 ]
 export const appSource = new DataSource({
   type: "mssql",
