@@ -10,8 +10,6 @@ export class formDetails {
     @Column()
     mobileNumber: String;
     @Column({ type: 'ntext' })
-    address: string;
-    @Column({ type: 'ntext' })
     message: string;
     @CreateDateColumn({ name: "created_at" })
     createdAt: Date;

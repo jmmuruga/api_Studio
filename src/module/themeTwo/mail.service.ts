@@ -1,11 +1,15 @@
 import { ValidationException } from "../../core/exception";
 import { Request, Response } from "express";
 import nodemailer from "nodemailer";
+import { appSource } from "../../core/db";
+import { formDetails } from "../formDetails/formDetails.model";
 
 export const sendMail = async (req: Request, res: Response) => {
   try {
-    const formDetails = req.body;
-    console.log(formDetails, "email service called");
+    const formDatas = req.body;
+    console.log(formDatas, "email service called");
+    const repo = appSource.getRepository(formDetails);
+    await repo.save(formDatas);
     const transporter = nodemailer.createTransport({
       service: "gmail",
       port: 465,
@@ -17,20 +21,20 @@ export const sendMail = async (req: Request, res: Response) => {
     });
     await transporter.sendMail({
       from: "savedatain@gmail.com",
-      to: formDetails.to,
-      subject: `New Inquiry from ${formDetails.fullName}`,
+      to: formDatas.to,
+      subject: `New Inquiry from ${formDatas.fullName}`,
       text:
         "Name: " +
-        formDetails.fullName +
+        formDatas.customer_name +
         "\n" +
         "Mobile Number: " +
-        formDetails.mobileNumber +
+        formDatas.mobileNumber +
         "\n" +
         "Mail-ID: " +
-        formDetails.emailId +
+        formDatas.e_mail +
         "\n" +
         "Message: " +
-        formDetails.message,
+        formDatas.message,
     });
 
     res.status(200).send({
