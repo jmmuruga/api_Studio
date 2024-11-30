@@ -4,7 +4,7 @@ import { galleryDetailsDto } from "../gallery/gallery.dto";
 import { ValidationException } from "../../core/exception";
 import { appSource } from "../../core/db";
 import { bannerMaster } from "../banner/banner.model";
-import { bannerDetailsDto } from "../banner/banner.dto"; 
+import { bannerDetailsDto } from "../banner/banner.dto";
 import { companyDetails } from "../company/companyDetails.model";
 
 export const getGalleryListAsMenu = async (req: Request, res: Response) => {
@@ -59,11 +59,16 @@ export const getBannerByMenuName = async (req: Request, res: Response) => {
 };
 
 export const getImageListByAlbumid = async (req: Request, res: Response) => {
-  const albumid = req.params.albumid
+  const albumid = req.params.albumid;
   try {
     const repo = appSource.getRepository(galleryMasterNested);
     const details: galleryDetailsDto[] = await repo.query(`
-        select * from [${process.env.DB_NAME}].[dbo].[gallery_master_nested] where isdelete=1 and albumid=${albumid}  ;
+        SELECT gm.album_name , gmn.* 
+FROM [${process.env.DB_NAME}].[dbo]. [gallery_master_nested] AS gmn
+INNER JOIN [gallery_master] AS gm 
+    ON gmn.albumid = gm.albumid
+WHERE gmn.isdelete = 1 
+  AND gmn.albumid = ${albumid};
   `);
     res.status(200).send({
       Result: details,
