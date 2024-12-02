@@ -30,7 +30,6 @@ themeTwoRouter.get("/getFilterImages/:album_name", (req, res) => {
 themeTwoRouter.get("/getCompanyDetails", (req, res) => {
   getCompanyDetails(req, res);
 });
-// themeTwoRouter.get('/getBanners/:pageName',(req,res)=>{getBanners(req,res)});
 themeTwoRouter.post("/sendMail", (req, res) => {
   sendMail(req, res);
 });

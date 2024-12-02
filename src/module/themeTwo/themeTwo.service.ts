@@ -162,8 +162,6 @@ export const getLocName = async (req: Request, res: Response) => {
       .where("galleryMaster.isdelete = :isdelete", { isdelete: true })
       .groupBy("location")
       .getRawMany();
-
-    console.log(details, "loc");
     res.status(200).send({ Result: details });
   } catch (error) {
     console.log("error", error);
