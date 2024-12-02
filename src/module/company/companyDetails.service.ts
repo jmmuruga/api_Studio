@@ -35,7 +35,7 @@ export const newCompany = async (req: Request, res: Response) => {
         const repo = appSource.getRepository(companyDetails);
         const companyDetailsDetails = await repo.createQueryBuilder('companyDetails').getOne();
         if (companyDetailsDetails?.companyid) {
-            const { companyid, ...updatePayload } = payload;
+            const { cuid, companyid, ...updatePayload } = payload;
             await repo
                 .update({ companyid: companyDetailsDetails?.companyid }, updatePayload)
                 .then((r) => {

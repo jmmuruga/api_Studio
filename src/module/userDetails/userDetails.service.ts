@@ -49,7 +49,7 @@ export const newUser = async (req: Request, res: Response) => {
                     throw new ValidationException("E-mail already exist");
                 }
             }
-            const { userid, ...updatePayload } = payload;
+            const { cuid, userid, ...updatePayload } = payload;
             await UserDetailsRepoistry
                 .update({ userid: payload.userid }, updatePayload)
                 .then((r) => {
