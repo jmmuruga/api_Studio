@@ -85,7 +85,8 @@ export const getAlbumPhotos = async (req: Request, res: Response) => {
             .andWhere("galleryMasterNested.photoid > :photoid", {
                 photoid: count,
             })
-            .orderBy("galleryMasterNested.albumid", "ASC")
+            .orderBy("CASE WHEN galleryMasterNested.arrangement IS NULL THEN 1 ELSE 0 END", "ASC")
+            .addOrderBy("galleryMasterNested.arrangement", "ASC")
             .limit(15)
             .getMany();
         res.status(200).send({

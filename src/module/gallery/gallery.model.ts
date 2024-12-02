@@ -34,6 +34,8 @@ export class galleryMasterNested {
     albumid: number;
     @Column({ type: 'ntext' })
     baseimg: string;
+    @Column({ nullable: true })
+    arrangement: number;
     @Column()
     isdelete: boolean;
     @Column({ nullable: true })
