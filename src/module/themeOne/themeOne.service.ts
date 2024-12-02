@@ -6,6 +6,8 @@ import { appSource } from "../../core/db";
 import { bannerMaster } from "../banner/banner.model";
 import { bannerDetailsDto } from "../banner/banner.dto";
 import { companyDetails } from "../company/companyDetails.model";
+import nodemailer from "nodemailer";
+import { formDetails } from "../formDetails/formDetails.model";
 
 export const getGalleryListAsMenu = async (req: Request, res: Response) => {
   console.log("menu called ");
@@ -144,6 +146,52 @@ export const getNavHead = async (req: Request, res: Response) => {
       Result: details,
     });
   } catch (error) {
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const sendMail = async (req: Request, res: Response) => {
+  try {
+    const formDatas = req.body;
+    console.log(formDatas, "email service called");
+    const repo = appSource.getRepository(formDetails);
+    await repo.save(formDatas);
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "savedatain@gmail.com",
+        pass: "mqks tltb abyk jlyw",
+      },
+    });
+    await transporter.sendMail({
+      from: "savedatain@gmail.com",
+      to: "savedatasaranya@gmail.com",
+      subject: `New Inquiry from ${formDatas.customer_name}`,
+      text:
+        "Name: " +
+        formDatas.customer_name +
+        "\n" +
+        "Mobile Number: " +
+        formDatas.mobileNumber +
+        "\n" +
+        "Mail-ID: " +
+        formDatas.e_mail +
+        "\n" +
+        "Message: " +
+        formDatas.message,
+    });
+    res.status(200).send({
+      Result: "Mail sent successfully",
+    });
+  } catch (error) {
+    console.log(error, "result");
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,

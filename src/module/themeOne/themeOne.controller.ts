@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getBannerByMenuName, getGalleryListAsMenu, getNavHead, getServicesImage } from "./themeOne.service";
+import { getBannerByMenuName, getGalleryListAsMenu, getNavHead, getServicesImage, sendMail } from "./themeOne.service";
 import { getGalleryImagesList } from "./themeOne.service";
 import { auth } from "../../shared/helper";
 import { getImageListByAlbumid } from "./themeOne.service";
@@ -26,6 +26,11 @@ themeOneRouter.get("/getBannerByMenuName/:menu_name", (req, res) =>
 themeOneRouter.get("/getNavHead", (req, res) =>
   getNavHead(req, res)
 );
+
+themeOneRouter.post("/sendMail",
+   (req, res) => {
+  sendMail(req, res);
+});
 
 
 
