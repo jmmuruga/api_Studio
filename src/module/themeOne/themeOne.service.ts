@@ -15,13 +15,13 @@ export const getGalleryListAsMenu = async (req: Request, res: Response) => {
     const galleryMasterRepository = appSource.getRepository(galleryMaster);
     const details: galleryDetailsDto[] = await galleryMasterRepository.query(`
   with getCount as (
-      select count(albumid) as counts,albumid from [${process.env.DB_NAME}].[dbo].[gallery_master_nested] where isdelete=1
+      select count(albumid) as counts,albumid from [${process.env.DB_NAME}].[dbo].[gallery_master_nested] where isdelete=0 
       group by albumid
       )
       
       select gm.*,gmncount.counts from [${process.env.DB_NAME}].[dbo].[gallery_master] gm
       left join getCount gmncount on gmncount.albumid=gm.albumid
-      where gm.isdelete=1
+      where gm.isdelete=0 and gm.status = 1
 `);
     res.status(200).send({
       Result: details,
@@ -69,7 +69,7 @@ export const getImageListByAlbumid = async (req: Request, res: Response) => {
 FROM [${process.env.DB_NAME}].[dbo]. [gallery_master_nested] AS gmn
 INNER JOIN [gallery_master] AS gm 
     ON gmn.albumid = gm.albumid
-WHERE gmn.isdelete = 1 
+WHERE gmn.isdelete = 0  
   AND gmn.albumid = ${albumid};
   `);
     res.status(200).send({
@@ -89,8 +89,12 @@ WHERE gmn.isdelete = 1
 export const getGalleryImagesList = async (req: Request, res: Response) => {
   try {
     const Repository = appSource.getRepository(galleryMasterNested);
-    const details = await Repository.query(`
-        select baseimg  from [${process.env.DB_NAME}].[dbo].[gallery_master_nested] where isdelete=1`);
+    const details =
+      await Repository.query(`select gmn.baseimg  from [${process.env.DB_NAME}].[dbo].[gallery_master] gm 
+        inner join [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gmn.albumid = gm.albumid
+        where gm.isdelete=0 and gmn.isdelete=0 and gm.status = 1
+        order by gmn.arrangement asc
+      `);
     console.log("called here");
     res.status(200).send({
       Result: details,
@@ -116,10 +120,12 @@ export const getServicesImage = async (req: Request, res: Response) => {
 from [${process.env.DB_NAME}].[dbo].[gallery_master] 
 inner join  [${process.env.DB_NAME}].[dbo].[gallery_master_nested] 
     on gallery_master.albumid = gallery_master_nested.albumid
-where gallery_master.isdelete = 1 and gallery_master_nested.isdelete = 1
+where gallery_master.isdelete = 0 and gallery_master.status = 1 and gallery_master_nested.isdelete = 0
 group by gallery_master.albumid,
          gallery_master.album_name,
-         gallery_master.description;
+         gallery_master.description
+
+         
       
         `);
     res.status(200).send({
