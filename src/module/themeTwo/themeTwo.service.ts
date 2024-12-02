@@ -17,7 +17,7 @@ export const getPhotographyTypeServices = async (
       SELECT gm.album_name
       FROM [${process.env.DB_NAME}].[dbo].[gallery_master] gm    
       
-      WHERE gm.isdelete = 1
+      WHERE gm.isdelete = 0
       GROUP BY gm.album_name`);
 
     for (const album of details) {
@@ -26,8 +26,8 @@ export const getPhotographyTypeServices = async (
           SELECT TOP 1 gm.album_name, CAST(gmn.baseimg AS VARCHAR(MAX)) AS baseimg
           FROM [${process.env.DB_NAME}].[dbo].[gallery_master] gm
           INNER JOIN [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn 
-            ON gmn.albumid = gm.albumid AND gmn.isdelete = 1
-          WHERE gm.isdelete = 1 AND gm.album_name = '${album.album_name}'
+            ON gmn.albumid = gm.albumid AND gmn.isdelete = 0
+          WHERE gm.isdelete = 0 AND gm.album_name = '${album.album_name}'
           ORDER BY gmn.photoid
         `
       );
@@ -57,15 +57,15 @@ export const getAlbumName = async (req: Request, res: Response) => {
     const details = await galleryMasterRepository.query(`
      SELECT *
 FROM  [${process.env.DB_NAME}].[dbo].[gallery_master] gm
-WHERE gm.isdelete = 1 and gm.album_name = '${albumName}'`);
+WHERE gm.isdelete = 0 and gm.status = 1 and gm.album_name = '${albumName}'`);
 
     for (const album of details) {
       const nestedData = await galleryMasterRepository.query(
         `SELECT top 1 gm.album_name, CAST(gmn.baseimg AS VARCHAR(MAX)) AS baseimg
 FROM [${process.env.DB_NAME}].[dbo].[gallery_master] gm
-inner JOIN [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn ON gmn.albumid = gm.albumid and gmn.isdelete=1
-WHERE gm.isdelete = 1 and gm.title='${album.title}'
- ORDER BY gmn.photoid`
+inner JOIN [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn ON gmn.albumid = gm.albumid and gmn.isdelete=0
+WHERE gm.isdelete = 0 and gm.status = 1 and gm.title='${album.title}'
+ ORDER BY gmn.arrangement asc`
       );
 
       // Attach the base image to the album
@@ -92,8 +92,8 @@ export const getAlbumImages = async (req: Request, res: Response) => {
     const galleryMasterRepository = appSource.getRepository(galleryMaster);
     const details: galleryDetailsDto[] = await galleryMasterRepository.query(`
         select gmn.baseimg,gm.title,gm.album_name from [${process.env.DB_NAME}].[dbo].[gallery_master] gm
-inner join [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid and gmn.isdelete = 1
-where gm.isdelete = 1 and gm.albumid = ${albumId}
+inner join [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid and gmn.isdelete = 0
+where gm.isdelete = 0 and gm.albumid = ${albumId}
         `);
 
     res.status(200).send({
@@ -116,8 +116,9 @@ export const getAllImages = async (req: Request, res: Response) => {
     const details = await repo
       .createQueryBuilder("galleryMasterNested")
       .where("galleryMasterNested.isdelete = :isdelete", {
-        isdelete: true,
+        isdelete: false,
       })
+
       .getMany();
     res.status(200).send({
       Result: details,
@@ -159,7 +160,7 @@ export const getLocName = async (req: Request, res: Response) => {
     const details = await galleryMasterRepository
       .createQueryBuilder("galleryMaster")
       .select("location")
-      .where("galleryMaster.isdelete = :isdelete", { isdelete: true })
+      .where("galleryMaster.isdelete = :isdelete", { isdelete: false })
       .groupBy("location")
       .getRawMany();
     res.status(200).send({ Result: details });
@@ -181,7 +182,7 @@ export const getLocBasedAlbums = async (req: Request, res: Response) => {
     const details =
       await galleryMasterRepository.query(`select gm.location,gmn.baseimg from  [${process.env.DB_NAME}].[dbo].[gallery_master] gm
 inner join  [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gmn.albumid=gm.albumid
-where gm.location='${loc}' and gm.isdelete=1 and gmn.isdelete=1`);
+where gm.location='${loc}' and gm.isdelete=0 and gmn.isdelete=0`);
     console.log(details, "loc");
     res.status(200).send({ Result: details });
   } catch (error) {
@@ -199,17 +200,20 @@ export const getFilterImages = async (req: Request, res: Response) => {
   const albumName = req.params.album_name;
   try {
     const repo = appSource.getRepository(galleryMaster);
-    let details:any[];
+    let details: any[];
     if (albumName === "All") {
       details =
         await repo.query(`select gm.album_name,gmn.baseimg from  [${process.env.DB_NAME}].[dbo].[gallery_master] gm 
 inner join  [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid 
-where gm.isdelete = 1`);
+where gm.isdelete = 0
+order by gmn.arrangement asc
+`);
     } else {
       details =
         await repo.query(`select gm.album_name,gmn.baseimg from  [${process.env.DB_NAME}].[dbo].[gallery_master] gm 
       inner join  [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid 
-      where gm.isdelete = 1 and gm.album_name = '${albumName}' `);
+      where gm.isdelete = 0 and gm.album_name = '${albumName}' 
+      order by gmn.arrangement asc`);
     }
     console.log(details, "gallerFilter");
     res.status(200).send({ Result: details });
