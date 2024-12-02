@@ -5,6 +5,8 @@ import { bannerMaster } from "../banner/banner.model";
 import { Request, Response } from "express";
 import { galleryMaster, galleryMasterNested } from "../gallery/gallery.model";
 import { galleryDetailsDto } from "../gallery/gallery.dto";
+import { companyDetails } from "../company/companyDetails.model";
+import nodemailer from "nodemailer";
 
 export const getBannerByMenuName = async (req: Request, res: Response) => {
     const name = req.params.menu_name;
@@ -83,14 +85,74 @@ export const getAlbumPhotos = async (req: Request, res: Response) => {
             .andWhere("galleryMasterNested.photoid > :photoid", {
                 photoid: count,
             })
-            .orderBy("galleryMasterNested.albumid", "ASC")
-            .limit(4)
+            .orderBy("CASE WHEN galleryMasterNested.arrangement IS NULL THEN 1 ELSE 0 END", "ASC")
+            .addOrderBy("galleryMasterNested.arrangement", "ASC")
+            .limit(15)
             .getMany();
         res.status(200).send({
             Result: { parent: parent, child: nested }
         });
     } catch (error) {
         console.log('error', error)
+        if (error instanceof ValidationException) {
+            return res.status(400).send({
+                message: error?.message,
+            });
+        }
+        res.status(500).send(error);
+    }
+};
+
+export const getCompanyData = async (req: Request, res: Response) => {
+    try {
+        const Repository = appSource.getRepository(companyDetails);
+        const data = await Repository
+            .createQueryBuilder()
+            .getMany();
+        res.status(200).send({
+            Result: data
+        });
+    } catch (error) {
+        if (error instanceof ValidationException) {
+            return res.status(400).send({
+                message: error?.message,
+            });
+        }
+        res.status(500).send(error);
+    }
+};
+
+export const sendMail = async (req: Request, res: Response) => {
+    try {
+        const formDetails = req.body;
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            port: 465,
+            secure: true,
+            auth: {
+                user: "savedatain@gmail.com",
+                pass: "mqks tltb abyk jlyw",
+            },
+        });
+        await transporter.sendMail({
+            from: "savedatain@gmail.com",
+            to: formDetails.to,
+            subject: `New Inquiry from ${formDetails.name}`,
+            text:
+                "Name: " +
+                formDetails.name +
+                "\n" +
+                "Mobile Number: " +
+                formDetails.phone +
+                "\n" +
+                "Message: " +
+                formDetails.message,
+        });
+        res.status(200).send({
+            Result: "Mail sent successfully",
+        });
+    } catch (error) {
+        console.log(error, "result");
         if (error instanceof ValidationException) {
             return res.status(400).send({
                 message: error?.message,

@@ -7,7 +7,7 @@ export class galleryMaster {
     album_name: string;
     @Column()
     title: string;
-    @Column()
+    @Column({ type: 'ntext' })
     description: string;
     @Column()
     location: string;
@@ -34,6 +34,8 @@ export class galleryMasterNested {
     albumid: number;
     @Column({ type: 'ntext' })
     baseimg: string;
+    @Column({ nullable: true })
+    arrangement: number;
     @Column()
     isdelete: boolean;
     @Column({ nullable: true })

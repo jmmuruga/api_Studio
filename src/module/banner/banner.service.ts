@@ -75,7 +75,7 @@ export const newBanner = async (req: Request, res: Response) => {
                     }
                 }
 
-                const { bannerid, photos, ...updatePayload } = payload;
+                const { cuid,bannerid, photos, ...updatePayload } = payload;
                 await bannerMasterRepoistry.update({ bannerid: payload.bannerid }, updatePayload);
 
                 await bannerNestedRepoistry
