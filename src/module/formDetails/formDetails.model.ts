@@ -7,10 +7,10 @@ export class formDetails {
     customer_name: string;
     @Column()
     e_mail: string;
+    @Column({nullable: true})
+    date: Date;
     @Column()
     mobileNumber: String;
-    @Column({ type: 'ntext' })
-    address: string;
     @Column({ type: 'ntext' })
     message: string;
     @CreateDateColumn({ name: "created_at" })
