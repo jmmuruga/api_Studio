@@ -101,7 +101,7 @@ export const getBlogImages = async (req: Request, res: Response) => {
     const details: galleryDetailsDto[] =
       await galleryMasterRepo.query(`select baseimg from [${process.env.DB_name}].[dbo].[gallery_master] gm 
 inner join [${process.env.DB_name}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid 
-where gm.isdelete = 1 and gmn.isdelete = 1 and gm.albumid = ${albumId}
+where gm.isdelete = 0 and gmn.isdelete = 0 and gm.status = 1 and gm.albumid = ${albumId} order by gmn.arrangement asc
  `);
     res.status(200).send({ Result: details });
   } catch (error) {
@@ -121,8 +121,9 @@ export const getServicesType = async (req: Request, res: Response) => {
     const details: galleryDetailsDto[] =
       await galleryMasterRepo.query(`select gm.albumid, gm.title, max(cast(gmn.baseimg as varchar(max))) as baseimg from [${process.env.DB_name}].[dbo].[gallery_master] gm 
 inner join [${process.env.DB_name}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid
-where gm.isdelete = 1 and gmn.isdelete = 1
-group by  gm.albumid, gm.title; 
+where gm.isdelete = 0 and gmn.isdelete = 0 and  gm.status = 1 
+order by gmn.arrangement asc
+group by  gm.albumid, gm.title ; 
  `);
     res.status(200).send({ Result: details });
   } catch (error) {
@@ -143,7 +144,7 @@ export const getAllServices = async (req: Request, res: Response) => {
     const details: galleryDetailsDto[] =
       await galleryMasterRepo.query(`select gm.albumid, gm.title, gmn.baseimg from [${process.env.DB_name}].[dbo].[gallery_master] gm 
 inner join [${process.env.DB_name}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid 
-where gm.isdelete = 1 and gmn.isdelete = 1 and gm.title = '${title}'
+where gm.isdelete = 0 and gmn.isdelete = 0 and  gm.status = 1  and gm.title = '${title}' order by gmn.arrangement asc
  `);
     res.status(200).send({ Result: details });
   } catch (error) {
@@ -162,24 +163,26 @@ export const getHomePageServices = async (req: Request, res: Response) => {
     const galleryMasterRepo = appSource.getRepository(galleryMaster);
     const albumList: galleryDetailsDto[] = await galleryMasterRepo.query(`
       select album_name from [${process.env.DB_name}].[dbo].[gallery_master]
-where isdelete = 1
+where isdelete = 0 and status = 1 
 group by album_name;
       `);
 
     for (const album of albumList) {
       console.log(album.album_name , 'name')
       album.photos =
-        await galleryMasterRepo.query(`SELECT top 3 gm.albumid, gm.album_name,
-       gm.title, 
-       MAX(CAST(gmn.baseimg AS VARCHAR(MAX))) AS baseimg, 
-       gm.description
+        await galleryMasterRepo.query(`SELECT top 3
+       gm.title,
+	   gm.albumid,
+	   gm.album_name,
+	   MAX(CAST(gm.description AS VARCHAR(MAX))) AS description,
+       max(CAST(gmn.baseimg AS VARCHAR(MAX))) AS baseimg
 FROM [${process.env.DB_name}].[dbo].[gallery_master] gm
 INNER JOIN [${process.env.DB_name}].[dbo].[gallery_master_nested] gmn 
     ON gm.albumid = gmn.albumid
-WHERE gm.isdelete = 1 
-  AND gmn.isdelete = 1
-   AND gm.album_name = '${album.album_name}'
-GROUP BY gm.albumid, gm.album_name, gm.title, gm.description;
+WHERE gm.isdelete = 0
+  AND gmn.isdelete = 0 and gm.album_name = '${album.album_name}'
+   
+GROUP BY gm.title,gm.albumid,gm.album_name
  `);
     }
     res.status(200).send({ Result: albumList });
@@ -203,8 +206,8 @@ export const getGalleryImages = async (req: Request, res: Response) => {
 FROM [${process.env.DB_name}].[dbo].[gallery_master] gm 
 INNER JOIN [${process.env.DB_name}].[dbo].[gallery_master_nested] gmn 
     ON gm.albumid = gmn.albumid 
-WHERE gm.isdelete = 1 
-  AND gmn.isdelete = 1
+WHERE gm.isdelete = 0
+  AND gmn.isdelete = 0 AND gm.status = 1 order by gmn.arrangement asc
  `);
     res.status(200).send({ Result: details });
   } catch (error) {
