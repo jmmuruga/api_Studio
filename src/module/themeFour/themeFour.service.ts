@@ -76,8 +76,8 @@ export const getBlogDetails = async (req: Request, res: Response) => {
        CAST(bmn.baseimg AS VARCHAR(MAX)) AS baseimg, 
 	   CAST( bmn.description AS VARCHAR(MAX)) AS description, 
 	   bm.menu_name 
-FROM banner_master bm
-INNER JOIN banner_master_nested bmn ON bm.bannerid = bmn.bannerid
+FROM [${process.env.DB_name}].[dbo].[banner_master] bm
+INNER JOIN [${process.env.DB_name}].[dbo].[banner_master_nested] bmn ON bm.bannerid = bmn.bannerid
 where bm.menu_name = 'blog'
 GROUP BY bm.bannerid, bmn.title,  CAST(bmn.baseimg AS VARCHAR(MAX)),  CAST( bmn.description AS VARCHAR(MAX)) , bm.menu_name;
  `
@@ -119,11 +119,16 @@ export const getServicesType = async (req: Request, res: Response) => {
   try {
     const galleryMasterRepo = appSource.getRepository(galleryMaster);
     const details: galleryDetailsDto[] =
-      await galleryMasterRepo.query(`select gm.albumid, gm.title, max(cast(gmn.baseimg as varchar(max))) as baseimg from [${process.env.DB_name}].[dbo].[gallery_master] gm 
-inner join [${process.env.DB_name}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid
-where gm.isdelete = 0 and gmn.isdelete = 0 and  gm.status = 1 
-order by gmn.arrangement asc
-group by  gm.albumid, gm.title ; 
+      await galleryMasterRepo.query(`SELECT gm.albumid, gm.title, 
+       MAX(CAST(gmn.baseimg AS VARCHAR(MAX))) AS baseimg,
+       MAX(gmn.arrangement) AS arrangement
+FROM [${process.env.DB_name}].[dbo].[gallery_master] gm
+INNER JOIN [${process.env.DB_name}].[dbo].[gallery_master_nested] gmn ON gm.albumid = gmn.albumid
+WHERE gm.isdelete = 0 
+  AND gmn.isdelete = 0 
+  AND gm.status = 1 
+GROUP BY gm.albumid, gm.title
+ORDER BY MAX(gmn.arrangement) ASC;
  `);
     res.status(200).send({ Result: details });
   } catch (error) {
