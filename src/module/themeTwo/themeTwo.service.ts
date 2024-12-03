@@ -15,9 +15,8 @@ export const getPhotographyTypeServices = async (
     const galleryMasterRepository = appSource.getRepository(galleryMaster);
     const details = await galleryMasterRepository.query(`
       SELECT gm.album_name
-      FROM [${process.env.DB_NAME}].[dbo].[gallery_master] gm    
-      
-      WHERE gm.isdelete = 0
+      FROM [${process.env.DB_NAME}].[dbo].[gallery_master] gm   
+      WHERE gm.isdelete = 0 and status = 1 
       GROUP BY gm.album_name`);
 
     for (const album of details) {
@@ -26,9 +25,9 @@ export const getPhotographyTypeServices = async (
           SELECT TOP 1 gm.album_name, CAST(gmn.baseimg AS VARCHAR(MAX)) AS baseimg
           FROM [${process.env.DB_NAME}].[dbo].[gallery_master] gm
           INNER JOIN [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn 
-            ON gmn.albumid = gm.albumid AND gmn.isdelete = 0
+            ON gmn.albumid = gm.albumid AND gmn.isdelete = 0 and gm.status = 1
           WHERE gm.isdelete = 0 AND gm.album_name = '${album.album_name}'
-          ORDER BY gmn.photoid
+          ORDER BY gmn.arrangement asc
         `
       );
 
@@ -63,11 +62,10 @@ WHERE gm.isdelete = 0 and gm.status = 1 and gm.album_name = '${albumName}'`);
       const nestedData = await galleryMasterRepository.query(
         `SELECT top 1 gm.album_name, CAST(gmn.baseimg AS VARCHAR(MAX)) AS baseimg
 FROM [${process.env.DB_NAME}].[dbo].[gallery_master] gm
-inner JOIN [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn ON gmn.albumid = gm.albumid and gmn.isdelete=0
-WHERE gm.isdelete = 0 and gm.status = 1 and gm.title='${album.title}'
+inner JOIN [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn ON gmn.albumid = gm.albumid
+WHERE gm.isdelete = 0 and gmn.isdelete = 0 and gm.status = 1 and gm.title='${album.title}'
  ORDER BY gmn.arrangement asc`
       );
-
       // Attach the base image to the album
       album.baseimg = nestedData[0]?.baseimg || ""; // Get baseimg from the first row if available
     }
@@ -92,15 +90,14 @@ export const getAlbumImages = async (req: Request, res: Response) => {
     const galleryMasterRepository = appSource.getRepository(galleryMaster);
     const details: galleryDetailsDto[] = await galleryMasterRepository.query(`
         select gmn.baseimg,gm.title,gm.album_name from [${process.env.DB_NAME}].[dbo].[gallery_master] gm
-inner join [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid and gmn.isdelete = 0
-where gm.isdelete = 0 and gm.albumid = ${albumId}
+inner join [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid
+where gm.isdelete = 0 and gmn.isdelete = 0 and gm.status = 1 and gm.albumid = ${albumId} order by gmn.arrangement asc
         `);
-
     res.status(200).send({
       Result: details,
     });
   } catch (error) {
-    console.log("geall", error);
+    console.log( error);
     if (error instanceof ValidationException) {
       return res.status(400).send({
         message: error?.message,
@@ -182,7 +179,7 @@ export const getLocBasedAlbums = async (req: Request, res: Response) => {
     const details =
       await galleryMasterRepository.query(`select gm.location,gmn.baseimg from  [${process.env.DB_NAME}].[dbo].[gallery_master] gm
 inner join  [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gmn.albumid=gm.albumid
-where gm.location='${loc}' and gm.isdelete=0 and gmn.isdelete=0`);
+where gm.location='${loc}' and gm.isdelete=0 and gmn.isdelete=0 and gm.status = 1 order by gmn.arrangement asc`);
     console.log(details, "loc");
     res.status(200).send({ Result: details });
   } catch (error) {
@@ -205,14 +202,14 @@ export const getFilterImages = async (req: Request, res: Response) => {
       details =
         await repo.query(`select gm.album_name,gmn.baseimg from  [${process.env.DB_NAME}].[dbo].[gallery_master] gm 
 inner join  [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid 
-where gm.isdelete = 0
+where gm.isdelete = 0 and gm.status = 1
 order by gmn.arrangement asc
 `);
     } else {
       details =
         await repo.query(`select gm.album_name,gmn.baseimg from  [${process.env.DB_NAME}].[dbo].[gallery_master] gm 
       inner join  [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid 
-      where gm.isdelete = 0 and gm.album_name = '${albumName}' 
+      where gm.isdelete = 0 and gmn.isdelete = 0 and gm.status = 1 and gm.album_name = '${albumName}' 
       order by gmn.arrangement asc`);
     }
     console.log(details, "gallerFilter");
