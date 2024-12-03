@@ -115,19 +115,15 @@ export const getServicesImage = async (req: Request, res: Response) => {
     const details = await Repository.query(`
         select gallery_master.albumid, 
     gallery_master.album_name, 
-    gallery_master.description,
+   MAX(CAST( gallery_master.description AS VARCHAR(MAX))) AS description,
      MAX(CAST(gallery_master_nested.baseimg AS VARCHAR(MAX))) AS baseimg
 from [${process.env.DB_NAME}].[dbo].[gallery_master] 
 inner join  [${process.env.DB_NAME}].[dbo].[gallery_master_nested] 
     on gallery_master.albumid = gallery_master_nested.albumid
 where gallery_master.isdelete = 0 and gallery_master.status = 1 and gallery_master_nested.isdelete = 0
-group by gallery_master.albumid,
-         gallery_master.album_name,
-         gallery_master.description
-
-         
-      
-        `);
+group by 
+gallery_master.albumid, 
+gallery_master.album_name`);
     res.status(200).send({
       Result: details,
     });
