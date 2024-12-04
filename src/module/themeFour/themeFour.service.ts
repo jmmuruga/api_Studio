@@ -226,7 +226,6 @@ WHERE gm.isdelete = 0
   }
 };
 
-
 export const sendMail = async (req: Request, res: Response) => {
   try {
     const formDatas = req.body;
