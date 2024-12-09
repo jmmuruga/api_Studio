@@ -10,7 +10,6 @@ import nodemailer from "nodemailer";
 import { formDetails } from "../formDetails/formDetails.model";
 
 export const getGalleryListAsMenu = async (req: Request, res: Response) => {
-  console.log("menu called ");
   try {
     const galleryMasterRepository = appSource.getRepository(galleryMaster);
     const details: galleryDetailsDto[] = await galleryMasterRepository.query(`
@@ -95,7 +94,6 @@ export const getGalleryImagesList = async (req: Request, res: Response) => {
         where gm.isdelete=0 and gmn.isdelete=0 and gm.status = 1
         order by gmn.arrangement asc
       `);
-    console.log("called here");
     res.status(200).send({
       Result: details,
     });
