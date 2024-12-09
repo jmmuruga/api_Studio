@@ -5,11 +5,11 @@ export class formDetails {
     form_id: number;
     @Column()
     customer_name: string;
-    @Column()
+    @Column({ nullable: true })
     e_mail: string;
     @Column()
     mobileNumber: String;
-    @Column({ type: 'ntext' })
+    @Column({ type: 'ntext', nullable: true })
     address: string;
     @Column({ type: 'ntext' })
     message: string;

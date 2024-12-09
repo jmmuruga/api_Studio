@@ -7,6 +7,7 @@ import { galleryMaster, galleryMasterNested } from "../gallery/gallery.model";
 import { galleryDetailsDto } from "../gallery/gallery.dto";
 import { companyDetails } from "../company/companyDetails.model";
 import nodemailer from "nodemailer";
+import { formDetails } from "../formDetails/formDetails.model";
 
 export const getBannerByMenuName = async (req: Request, res: Response) => {
     const name = req.params.menu_name;
@@ -37,13 +38,13 @@ export const getGalleryListAsMenu = async (req: Request, res: Response) => {
         const galleryMasterRepository = appSource.getRepository(galleryMaster);
         const details: galleryDetailsDto[] = await galleryMasterRepository.query(`
     with getCount as (
-        select count(albumid) as counts,albumid from [${process.env.DB_NAME}].[dbo].[gallery_master_nested] where isdelete=1
+        select count(albumid) as counts,albumid from [${process.env.DB_NAME}].[dbo].[gallery_master_nested] where isdelete=0
         group by albumid
         )
         
         select gm.*,gmncount.counts from [${process.env.DB_NAME}].[dbo].[gallery_master] gm
         left join getCount gmncount on gmncount.albumid=gm.albumid
-        where gm.isdelete=1
+        where gm.isdelete=0 and gm.status=1
   `);
         res.status(200).send({
             Result: details
@@ -70,7 +71,7 @@ export const getAlbumPhotos = async (req: Request, res: Response) => {
             .where("galleryMaster.albumid = :albumid", {
                 albumid: id,
             }).andWhere("galleryMaster.isdelete = :isdelete", {
-                isdelete: true,
+                isdelete: false,
             })
             .getMany();
 
@@ -80,10 +81,10 @@ export const getAlbumPhotos = async (req: Request, res: Response) => {
             .where("galleryMasterNested.albumid = :albumid", {
                 albumid: id,
             }).andWhere("galleryMasterNested.isdelete = :isdelete", {
-                isdelete: true,
+                isdelete: false,
             })
-            .andWhere("galleryMasterNested.photoid > :photoid", {
-                photoid: count,
+            .andWhere("galleryMasterNested.arrangement > :arrangement", {
+                arrangement: count,
             })
             .orderBy("CASE WHEN galleryMasterNested.arrangement IS NULL THEN 1 ELSE 0 END", "ASC")
             .addOrderBy("galleryMasterNested.arrangement", "ASC")
@@ -124,7 +125,8 @@ export const getCompanyData = async (req: Request, res: Response) => {
 
 export const sendMail = async (req: Request, res: Response) => {
     try {
-        const formDetails = req.body;
+        const formdata = req.body;
+        console.log(formdata, 'formdata');
         const transporter = nodemailer.createTransport({
             service: "gmail",
             port: 465,
@@ -136,18 +138,22 @@ export const sendMail = async (req: Request, res: Response) => {
         });
         await transporter.sendMail({
             from: "savedatain@gmail.com",
-            to: formDetails.to,
-            subject: `New Inquiry from ${formDetails.name}`,
+            to: formdata.to,
+            subject: `New Inquiry from ${formdata.customer_name}`,
             text:
                 "Name: " +
-                formDetails.name +
+                formdata.customer_name +
                 "\n" +
                 "Mobile Number: " +
-                formDetails.phone +
+                formdata.mobileNumber +
                 "\n" +
                 "Message: " +
-                formDetails.message,
+                formdata.message,
         });
+
+        const repo = appSource.getTreeRepository(formDetails);
+        await repo.save(formdata);
+
         res.status(200).send({
             Result: "Mail sent successfully",
         });
