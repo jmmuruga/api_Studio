@@ -73,13 +73,13 @@ export const getBlogDetails = async (req: Request, res: Response) => {
     const details: galleryDetailsDto[] = await galleryMasterRepo.query(
       `SELECT bm.bannerid, 
        bmn.title, 
-       CAST(bmn.baseimg AS VARCHAR(MAX)) AS baseimg, 
+       CAST(bmn.baseimg AS VARCHAR(MAX)) AS baseimg, bmn.url_link,
 	   CAST( bmn.description AS VARCHAR(MAX)) AS description, 
 	   bm.menu_name 
 FROM [${process.env.DB_name}].[dbo].[banner_master] bm
 INNER JOIN [${process.env.DB_name}].[dbo].[banner_master_nested] bmn ON bm.bannerid = bmn.bannerid
 where bm.menu_name = 'blog'
-GROUP BY bm.bannerid, bmn.title,  CAST(bmn.baseimg AS VARCHAR(MAX)),  CAST( bmn.description AS VARCHAR(MAX)) , bm.menu_name;
+GROUP BY bm.bannerid, bmn.title, bmn.url_link, CAST(bmn.baseimg AS VARCHAR(MAX)),  CAST( bmn.description AS VARCHAR(MAX)) , bm.menu_name;
  `
     );
     res.status(200).send({ Result: details });
