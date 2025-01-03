@@ -36,15 +36,45 @@ export const getBannerByMenuName = async (req:Request,res:Response)=>{
 
 
 
-    export const getHomeGallery = async (req: Request, res: Response) => {
+    // export const getHomeGallery = async (req: Request, res: Response) => {
+    //   const name = req.params.menu_name;
+
+    //   try {
+    //     const bannerMasterRepository = appSource.getRepository(bannerMaster);
+    //     const details: bannerDetailsDto[] =
+    //       await  bannerMasterRepository.query(`elect bm.*,bmn.* from [${process.env.DB_NAME}].[dbo].[banner_master] bm
+    //   inner join [${process.env.DB_NAME}].[dbo].[banner_master_nested] bmn on bmn.bannerid=bm.bannerid
+    //   where bm.menu_name='${name}'
+            
+    //       `);
+    //     res.status(200).send({
+    //       Result: details,
+    //     });
+    //   } catch (error) {
+    //     if (error instanceof ValidationException) {
+    //       return res.status(400).send({
+    //         message: error?.message,
+    //       });
+    //     }
+    //     res.status(500).send(error);
+    //   }
+    // };
+
+
+
+
+    export const getMenus = async (req: Request, res: Response) => {
       try {
-        const galleryMasterNestedRepository = appSource.getRepository(galleryMasterNested);
-        const details =
-          await  galleryMasterNestedRepository.query(`select top 6 gmn.baseimg  from [${process.env.DB_NAME}].[dbo].[gallery_master] gm
-            inner join [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gmn.albumid = gm.albumid
-            where gm.isdelete=0 and gmn.isdelete=0 and gm.status = 1
-            order by gmn.albumid desc
-          `);
+        const galleryMasterRepository = appSource.getRepository(galleryMaster);
+        const details: galleryDetailsDto[] = await galleryMasterRepository.query(`
+      with getCount as (
+          select count(albumid) as counts,albumid from [${process.env.DB_NAME}].[dbo].[gallery_master_nested] where isdelete=0
+          group by albumid
+          )
+          select gm.*,gmncount.counts from [${process.env.DB_NAME}].[dbo].[gallery_master] gm
+          left join getCount gmncount on gmncount.albumid=gm.albumid
+          where gm.isdelete=0 and gm.status = 1
+    `);
         res.status(200).send({
           Result: details,
         });
@@ -57,7 +87,34 @@ export const getBannerByMenuName = async (req:Request,res:Response)=>{
         res.status(500).send(error);
       }
     };
-          
+        
+    
+
+    export const getImagesByAlbumId = async (req: Request, res: Response) => {
+      const albumid = req.params.albumid;
+      try {
+        const galleryMasterNestedRepository = appSource.getRepository(galleryMasterNested);
+        const details: galleryDetailsDto[] = await galleryMasterNestedRepository.query(`
+            SELECT gm.album_name , gmn.*
+    FROM [${process.env.DB_NAME}].[dbo]. [gallery_master_nested] AS gmn
+    INNER JOIN [gallery_master] AS gm
+        ON gmn.albumid = gm.albumid
+    WHERE gmn.isdelete = 0
+      AND gmn.albumid = ${albumid};
+      `);
+        res.status(200).send({
+          Result: details,
+        });
+      } catch (error) {
+        console.log(error);
+        if (error instanceof ValidationException) {
+          return res.status(400).send({
+            message: error?.message,
+          });
+        }
+        res.status(500).send(error);
+      }
+    };
      
 
 
