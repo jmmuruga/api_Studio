@@ -6,8 +6,7 @@ import { appSource } from "../../core/db";
 import { bannerMaster } from "../banner/banner.model";
 import { bannerDetailsDto } from "../banner/banner.dto";
 import { companyDetails } from "../company/companyDetails.model";
-import nodemailer from "nodemailer";
-import { formDetails } from "../formDetails/formDetails.model";
+
 
 
 export const getBannerByMenuName = async (req:Request,res:Response)=>{
@@ -118,5 +117,11 @@ export const getBannerByMenuName = async (req:Request,res:Response)=>{
      
 
 
-  
 
+
+    
+
+
+
+
+   
