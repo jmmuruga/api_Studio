@@ -66,14 +66,28 @@ export const getBannerByMenuName = async (req:Request,res:Response)=>{
       try {
         const galleryMasterRepository = appSource.getRepository(galleryMaster);
         const details: galleryDetailsDto[] = await galleryMasterRepository.query(`
-      with getCount as (
-          select count(albumid) as counts,albumid from [${process.env.DB_NAME}].[dbo].[gallery_master_nested] where isdelete=0
-          group by albumid
-          )
-          select gm.*,gmncount.counts from [${process.env.DB_NAME}].[dbo].[gallery_master] gm
-          left join getCount gmncount on gmncount.albumid=gm.albumid
-          where gm.isdelete=0 and gm.status = 1
+      		  select  count(gmn.albumid) as counts,
+		  gmn.albumid ,
+		  gm.album_name,
+		  gm.title,
+		  gm.location,
+		  MAX(CAST(gm.description AS NVARCHAR(MAX))) AS description,
+		   MAX(CAST( gmn.baseimg AS NVARCHAR(MAX))) AS baseimg
+		  from [${process.env.DB_NAME}].[dbo].[gallery_master] gm 
+		  left join [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn  on gmn.albumid=gm.albumid
+		   where gmn.isdelete=0 and gm.isdelete=0 and gm.status = 1
+		   group by gmn.albumid, gm.album_name,
+		  gm.title,
+		  gm.location
+		  
     `);
+
+    
+    
+
+
+
+
         res.status(200).send({
           Result: details,
         });
