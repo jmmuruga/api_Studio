@@ -128,6 +128,32 @@ export const getBannerByMenuName = async (req:Request,res:Response)=>{
         res.status(500).send(error);
       }
     };
+
+
+
+
+    export const getHeader = async (req:Request,res:Response)=>{
+ 
+
+    try {
+        const Repository = appSource.getRepository(companyDetails);
+        const details = await Repository.query(`  select * from [${process.env.DB_NAME}].[dbo].[company_details] 
+    
+      
+    `);
+        res.status(200).send({
+          Result: details,
+        });
+      } catch (error) {
+        if (error instanceof ValidationException) {
+          return res.status(400).send({
+            message: error?.message,
+          });
+        }
+        res.status(500).send(error);
+      }
+    };
+
      
 
 
