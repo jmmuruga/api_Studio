@@ -51,13 +51,11 @@ WHERE gm.isdelete = 0; `);
   }
 };
 
-export const getCompanyDetails = async (req: Request, res: Response) => {
+export const getPortfolioBanner = async (req: Request, res: Response) => {
   try {
-    const companyDetailsRepo = appSource.getRepository(companyDetails);
+    const galleryMasterRepo = appSource.getRepository(galleryMaster);
     const details =
-      await companyDetailsRepo.query(`SELECT 
-    gm.title,
-    gm.description,
+      await galleryMasterRepo.query(`SELECT top 3
     (SELECT TOP 1 gmn.baseimg 
      FROM [${process.env.DB_name}].[dbo].[gallery_master_nested] gmn 
      WHERE gmn.albumid = gm.albumid 
@@ -77,12 +75,51 @@ WHERE gm.isdelete = 0; `);
   }
 };
 
+export const getCompanyDetails = async (req: Request, res: Response) => {
+  try {
+    const companyDetailsRepo = appSource.getRepository(companyDetails);
+    const details =
+      await companyDetailsRepo.query(`SELECT *
+     FROM [${process.env.DB_name}].[dbo].[company_details]`)
+
+    res.status(200).send({ Result: details });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
 export const getClientGalleryImages = async (req: Request, res: Response) => {
   try {
     const galleryMasterRepo = appSource.getRepository(galleryMaster);
     const details =
-      await galleryMasterRepo.query(` select baseimg from [${process.env.DB_name}].[dbo].[gallery_master] gm 
-inner join [${process.env.DB_name}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid 
+      await galleryMasterRepo.query(` select baseimg from [${ process.env.DB_name }].[dbo].[gallery_master] gm 
+inner join [${ process.env.DB_name }].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid 
+where gm.isdelete = 0 and gmn.isdelete = 0 and gm.status = 1 `);
+
+    res.status(200).send({ Result: details });
+  } catch (error) {
+    console.log(error);
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+export const getClientGalleryBanner = async (req: Request, res: Response) => {
+  try {
+    const galleryMasterRepo = appSource.getRepository(galleryMaster);
+    const details =
+      await galleryMasterRepo.query(` select top 5 baseimg from [${ process.env.DB_name }].[dbo].[gallery_master] gm 
+inner join [${ process.env.DB_name }].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid 
 where gm.isdelete = 0 and gmn.isdelete = 0 and gm.status = 1 `);
 
     res.status(200).send({ Result: details });
