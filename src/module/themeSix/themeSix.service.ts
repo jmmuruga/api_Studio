@@ -31,13 +31,14 @@ export const getPortfolioTypes = async (req: Request, res: Response) => {
     const details =
       await galleryMasterRepo.query(`SELECT 
     gm.title,
+    gm.albumid,
     gm.description,
     (SELECT TOP 1 gmn.baseimg 
      FROM [${process.env.DB_name}].[dbo].[gallery_master_nested] gmn 
      WHERE gmn.albumid = gm.albumid 
        AND gmn.isdelete = 0) AS baseimg
 FROM [${process.env.DB_name}].[dbo].[gallery_master] gm
-WHERE gm.isdelete = 0; `);
+WHERE gm.isdelete = 0`);
 
     res.status(200).send({ Result: details });
   } catch (error) {
