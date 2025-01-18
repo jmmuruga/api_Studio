@@ -4,7 +4,9 @@ import {
     getClientGalleryBanner,
     getClientGalleryImages,
     getCompanyDetails,
+    getPortfolioAllTypes,
     getPortfolioBanner,
+    getPortfolioImages,
     getPortfolioTypes,
 } from "./themeSix.service";
 
@@ -15,5 +17,7 @@ themeSixRouter.get("/themeSixPortfolioBanner", (req, res) => getPortfolioBanner(
 themeSixRouter.get("/themeSixCompanyDetails", (req, res) => getCompanyDetails(req, res));
 themeSixRouter.get("/themeSixClientGalleryImages", (req, res) => getClientGalleryImages(req, res));
 themeSixRouter.get("/themeSixClientGalleryBanner", (req, res) => getClientGalleryBanner(req, res));
+themeSixRouter.get("/themeSixPortfolioImages/:albumid", (req, res) => getPortfolioImages(req, res));
+themeSixRouter.get("/themeSixPortfolioAllTypes/:albumid",(req, res) => getPortfolioAllTypes(req, res));
 
 export default themeSixRouter;
