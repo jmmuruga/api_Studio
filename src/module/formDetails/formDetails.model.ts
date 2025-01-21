@@ -8,6 +8,10 @@ export class formDetails {
     @Column({ nullable: true })
     e_mail: string;
     @Column()
+    photography_type: string;
+    @Column()
+    location: string;
+    @Column()
     mobileNumber: String;
     @Column({ type: 'ntext', nullable: true })
     address: string;

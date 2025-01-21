@@ -206,9 +206,9 @@ export const sendMail = async (req: Request, res: Response) => {
     });
     await transporter.sendMail({
       from: "savedatain@gmail.com",
-      to: "savedatashreeyamunna@gmail.com",
+      to: "akshayamanju2@gmail.com",
       subject: `New Inquiry from ${formDatas.customer_name}`,
-      text:
+      text: 
         "Name: " +
         formDatas.customer_name +
         "\n" +
@@ -221,6 +221,12 @@ export const sendMail = async (req: Request, res: Response) => {
         "date: " +
         formDatas.date +
         "\n" +
+        "photography Type: " +
+        "\n" +
+        formDatas.photography_type +
+        "Location: " +
+        "\n" +
+        formDatas.location +
         "Message: " +
         formDatas.message,
     });
