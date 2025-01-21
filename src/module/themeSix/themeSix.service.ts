@@ -4,6 +4,9 @@ import { bannerMaster } from "../banner/banner.model";
 import { ValidationException } from "../../core/exception";
 import { galleryMaster } from "../gallery/gallery.model";
 import { companyDetails } from "../company/companyDetails.model";
+import { formDetails } from "../formDetails/formDetails.model";
+import nodemailer from 'nodemailer';
+
 
 export const getBannerImages = async (req: Request, res: Response) => {
   try {
@@ -52,7 +55,6 @@ WHERE gm.isdelete = 0`);
 
 export const getPortfolioImages = async (req: Request, res: Response) => {
   const albumid = req.params.albumid;
-  console.log(albumid,"id")
   try {
     const galleryMasterRepo = appSource.getRepository(galleryMaster);
     const details =
@@ -107,11 +109,13 @@ WHERE gm.isdelete = 0`);
 export const getPortfolioBanner = async (req: Request, res: Response) => {
   try {
     const galleryMasterRepo = appSource.getRepository(galleryMaster);
-    const details = await galleryMasterRepo.query(`SELECT top 3
+    const details = await galleryMasterRepo.query(`SELECT TOP 3 
+    gm.albumid, 
     (SELECT TOP 1 gmn.baseimg 
      FROM [${process.env.DB_name}].[dbo].[gallery_master_nested] gmn 
      WHERE gmn.albumid = gm.albumid 
-       AND gmn.isdelete = 0) AS baseimg
+       AND gmn.isdelete = 0 
+     ORDER BY gmn.albumid) AS baseimg
 FROM [${process.env.DB_name}].[dbo].[gallery_master] gm
 WHERE gm.isdelete = 0; `);
 
@@ -184,3 +188,55 @@ where gm.isdelete = 0 and gmn.isdelete = 0 and gm.status = 1 `);
     res.status(500).send(error);
   }
 };
+
+export const sendMail = async (req: Request, res: Response) => {
+  try {
+    const formDatas = req.body;
+    console.log(formDatas, "email service called");
+    const repo = appSource.getRepository(formDetails);
+    await repo.save(formDatas);
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "savedatain@gmail.com",
+        pass: "mqks tltb abyk jlyw",
+      },
+    });
+    await transporter.sendMail({
+      from: "savedatain@gmail.com",
+      to: "savedatashreeyamunna@gmail.com",
+      subject: `New Inquiry from ${formDatas.customer_name}`,
+      text:
+        "Name: " +
+        formDatas.customer_name +
+        "\n" +
+        "Mobile Number: " +
+        formDatas.mobileNumber +
+        "\n" +
+        "Mail-ID: " +
+        formDatas.e_mail +
+        "\n" +
+        "date: " +
+        formDatas.date +
+        "\n" +
+        "Message: " +
+        formDatas.message,
+    });
+    res.status(200).send({
+      Result: "Mail sent successfully",
+    });
+  } catch (error) {
+    console.log(error, "result");
+    if (error instanceof ValidationException) {
+      return res.status(400).send({
+        message: error?.message,
+      });
+    }
+    res.status(500).send(error);
+  }
+};
+
+
+
