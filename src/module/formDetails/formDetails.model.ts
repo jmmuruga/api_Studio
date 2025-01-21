@@ -13,6 +13,8 @@ export class formDetails {
     address: string;
     @Column({ type: 'ntext' })
     message: string;
+    @Column({ nullable: true })
+    wedding_date: string;
     @CreateDateColumn({ name: "created_at" })
     createdAt: Date;
 }

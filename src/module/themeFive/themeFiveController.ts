@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getBannerByMenuName,  getHeader,  getImagesByAlbumId, getMenus, } from "./themeFiveServices";
+import { getBannerByMenuName,  getHeader,  getImagesByAlbumId, getMenus, sendMail, } from "./themeFiveServices";
 
 const themeFiveRouter = Router();
    themeFiveRouter.get("/getBannerByMenuName/:menu_name",(req,res)=>
@@ -22,7 +22,10 @@ themeFiveRouter.get("/getImagesByAlbumId/:albumid",(req,res)=>
 themeFiveRouter.get("/getHeader/",(req,res)=>
     getHeader(req,res)
 );
-
+themeFiveRouter.post("/sendMail",
+    (req, res) => {
+   sendMail(req, res);
+ });
 
 
 export default themeFiveRouter
