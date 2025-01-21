@@ -20,6 +20,6 @@ themeSixRouter.get("/themeSixClientGalleryImages", (req, res) => getClientGaller
 themeSixRouter.get("/themeSixClientGalleryBanner", (req, res) => getClientGalleryBanner(req, res));
 themeSixRouter.get("/themeSixPortfolioImages/:albumid", (req, res) => getPortfolioImages(req, res));
 themeSixRouter.get("/themeSixPortfolioAllTypes/:albumid",(req, res) => getPortfolioAllTypes(req, res));
-themeSixRouter.post("/sendMail", (req, res) => {sendMail(req, res);});
+themeSixRouter.post("/sendMail", (req, res) => sendMail(req, res));
 
 export default themeSixRouter;

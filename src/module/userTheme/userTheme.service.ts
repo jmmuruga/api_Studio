@@ -127,6 +127,10 @@ export const sendMail = async (req: Request, res: Response) => {
     try {
         const formdata = req.body;
         console.log(formdata, 'formdata');
+        
+        const repo = appSource.getTreeRepository(formDetails);
+        await repo.save(formdata);
+
         const transporter = nodemailer.createTransport({
             service: "gmail",
             port: 465,
@@ -138,7 +142,7 @@ export const sendMail = async (req: Request, res: Response) => {
         });
         await transporter.sendMail({
             from: "savedatain@gmail.com",
-            to: formdata.to,
+            to: "savedataarunprasanth@gmail.com",
             subject: `New Inquiry from ${formdata.customer_name}`,
             text:
                 "Name: " +
@@ -151,8 +155,6 @@ export const sendMail = async (req: Request, res: Response) => {
                 formdata.message,
         });
 
-        const repo = appSource.getTreeRepository(formDetails);
-        await repo.save(formdata);
 
         res.status(200).send({
             Result: "Mail sent successfully",
