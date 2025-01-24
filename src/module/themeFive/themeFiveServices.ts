@@ -84,13 +84,7 @@ export const getBannerByMenuName = async (req:Request,res:Response)=>{
 		  
     `);
 
-    
-    
-
-
-
-
-        res.status(200).send({
+    res.status(200).send({
           Result: details,
         });
       } catch (error) {
@@ -115,7 +109,9 @@ export const getBannerByMenuName = async (req:Request,res:Response)=>{
     INNER JOIN [gallery_master] AS gm
         ON gmn.albumid = gm.albumid
     WHERE gmn.isdelete = 0
-      AND gmn.albumid = ${albumid};
+      AND gmn.albumid = ${albumid}
+     order by  arrangement
+      
       `);
         res.status(200).send({
           Result: details,
