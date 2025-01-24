@@ -69,7 +69,8 @@ FROM [${process.env.DB_NAME}].[dbo]. [gallery_master_nested] AS gmn
 INNER JOIN [gallery_master] AS gm 
     ON gmn.albumid = gm.albumid
 WHERE gmn.isdelete = 0  
-  AND gmn.albumid = ${albumid};
+  AND gmn.albumid = ${albumid}
+  order by arrangement
   `);
     res.status(200).send({
       Result: details,
@@ -93,6 +94,7 @@ export const getGalleryImagesList = async (req: Request, res: Response) => {
         inner join [${process.env.DB_NAME}].[dbo].[gallery_master_nested] gmn on gmn.albumid = gm.albumid
         where gm.isdelete=0 and gmn.isdelete=0 and gm.status = 1
         order by gmn.arrangement asc
+        
       `);
     res.status(200).send({
       Result: details,
@@ -121,7 +123,8 @@ inner join  [${process.env.DB_NAME}].[dbo].[gallery_master_nested]
 where gallery_master.isdelete = 0 and gallery_master.status = 1 and gallery_master_nested.isdelete = 0
 group by 
 gallery_master.albumid, 
-gallery_master.album_name`);
+gallery_master.album_name`
+);
     res.status(200).send({
       Result: details,
     });
