@@ -9,8 +9,6 @@ export class formDetails {
     e_mail: string;
     @Column()
     mobileNumber: String;
-    @Column({ type: 'ntext', nullable: true })
-    address: string;
     @Column({ type: 'ntext' })
     message: string;
     @Column({ nullable: true })
