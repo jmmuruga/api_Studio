@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getBannerByMenuName,  getHeader,  getImagesByAlbumId, getMenus, sendMail, } from "./themeFiveServices";
+import { getBannerByMenuName,  getHeader,  getImages,  getImagesByAlbumId, getMenus, sendMail, } from "./themeFiveServices";
 
 const themeFiveRouter = Router();
    themeFiveRouter.get("/getBannerByMenuName/:menu_name",(req,res)=>
@@ -13,6 +13,9 @@ const themeFiveRouter = Router();
 // );
 themeFiveRouter.get("/getMenus/",(req,res)=>
     getMenus(req,res)
+);
+themeFiveRouter.get("/getImages/",(req,res)=>
+    getImages(req,res)
 );
 
 themeFiveRouter.get("/getImagesByAlbumId/:albumid",(req,res)=>
