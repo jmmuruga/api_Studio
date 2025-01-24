@@ -66,7 +66,7 @@ WHERE gm.isdelete = 0
 AND gmn.isdelete = 0 
 AND gm.albumid = ${albumid}
 AND gm.status = 1 
-ORDER BY gmn.arrangement ASC; `);
+order by  arrangement `);
 
     res.status(200).send({ Result: details });
   } catch (error) {
@@ -175,7 +175,7 @@ export const getClientGalleryBanner = async (req: Request, res: Response) => {
     const details =
       await galleryMasterRepo.query(` select top 5 baseimg from [${process.env.DB_name}].[dbo].[gallery_master] gm 
 inner join [${process.env.DB_name}].[dbo].[gallery_master_nested] gmn on gm.albumid = gmn.albumid 
-where gm.isdelete = 0 and gmn.isdelete = 0 and gm.status = 1 `);
+where gm.isdelete = 0 and gmn.isdelete = 0 and gm.status = 1 order by  arrangement `);
 
     res.status(200).send({ Result: details });
   } catch (error) {
