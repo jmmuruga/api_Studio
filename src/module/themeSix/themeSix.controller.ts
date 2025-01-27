@@ -8,8 +8,8 @@ import {
     getPortfolioBanner,
     getPortfolioImages,
     getPortfolioTypes,
+    sendMail,
 } from "./themeSix.service";
-import { sendMail } from "../userTheme/userTheme.service";
 
 const themeSixRouter = Router();
 themeSixRouter.get("/themeSixBannerImages", (req, res) => getBannerImages(req, res));

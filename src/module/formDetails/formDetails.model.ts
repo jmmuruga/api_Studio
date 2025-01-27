@@ -7,9 +7,9 @@ export class formDetails {
     customer_name: string;
     @Column({ nullable: true })
     e_mail: string;
-    @Column()
+    @Column({ nullable: true })
     photography_type: string;
-    @Column()
+    @Column({ nullable: true })
     location: string;
     @Column()
     mobileNumber: String;

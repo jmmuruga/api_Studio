@@ -7,7 +7,6 @@ import { companyDetails } from "../company/companyDetails.model";
 import { formDetails } from "../formDetails/formDetails.model";
 import nodemailer from 'nodemailer';
 
-
 export const getBannerImages = async (req: Request, res: Response) => {
   try {
     const bannerMasterRepo = appSource.getRepository(bannerMaster);
@@ -206,7 +205,7 @@ export const sendMail = async (req: Request, res: Response) => {
     });
     await transporter.sendMail({
       from: "savedatain@gmail.com",
-      to: "akshayamanju2@gmail.com",
+      to: "savedataakshaya03@gmail.com",
       subject: `New Inquiry from ${formDatas.customer_name}`,
       text: 
         "Name: " +
