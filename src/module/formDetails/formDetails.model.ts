@@ -5,12 +5,16 @@ export class formDetails {
     form_id: number;
     @Column()
     customer_name: string;
-    @Column()
+    @Column({ nullable: true })
     e_mail: string;
-    @Column({nullable: true})
-    date: Date;
+    @Column()
+    photography_type: string;
+    @Column()
+    location: string;
     @Column()
     mobileNumber: String;
+    @Column({ type: 'ntext', nullable: true })
+    address: string;
     @Column({ type: 'ntext' })
     message: string;
     @CreateDateColumn({ name: "created_at" })
