@@ -38,7 +38,7 @@ export const getPortfolioTypes = async (req: Request, res: Response) => {
      WHERE gmn.albumid = gm.albumid 
        AND gmn.isdelete = 0) AS baseimg
 FROM [${process.env.DB_name}].[dbo].[gallery_master] gm
-WHERE gm.isdelete = 0`);
+WHERE gm.isdelete = 0 and gm.status = 1`);
 
     res.status(200).send({ Result: details });
   } catch (error) {
@@ -91,7 +91,7 @@ export const getPortfolioAllTypes = async (req: Request, res: Response) => {
      WHERE gmn.albumid = gm.albumid 
        AND gmn.isdelete = 0) AS baseimg
 FROM [${process.env.DB_name}].[dbo].[gallery_master] gm
-WHERE gm.isdelete = 0`);
+WHERE gm.isdelete = 0 and gm.status = 1`);
 
     res.status(200).send({ Result: details });
   } catch (error) {
@@ -116,7 +116,7 @@ export const getPortfolioBanner = async (req: Request, res: Response) => {
        AND gmn.isdelete = 0 
      ORDER BY gmn.albumid) AS baseimg
 FROM [${process.env.DB_name}].[dbo].[gallery_master] gm
-WHERE gm.isdelete = 0; `);
+WHERE gm.isdelete = 0 and gm.status = 1; `);
 
     res.status(200).send({ Result: details });
   } catch (error) {
